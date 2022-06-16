@@ -7,7 +7,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DB module exam", "DB module
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Repository", "Repository\Repository.csproj", "{7C18F601-C830-4A26-B7A9-A810EE7343BD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RestaurantAPI", "RestaurantAPI\RestaurantAPI.csproj", "{366612C4-6D3E-4600-B42C-441128F2D16C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RestaurantAPI", "RestaurantAPI\RestaurantAPI.csproj", "{366612C4-6D3E-4600-B42C-441128F2D16C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Business", "Business\Business.csproj", "{2D18772B-20A3-4079-80DE-4327E2F98D7F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +29,10 @@ Global
 		{366612C4-6D3E-4600-B42C-441128F2D16C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{366612C4-6D3E-4600-B42C-441128F2D16C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{366612C4-6D3E-4600-B42C-441128F2D16C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2D18772B-20A3-4079-80DE-4327E2F98D7F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2D18772B-20A3-4079-80DE-4327E2F98D7F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2D18772B-20A3-4079-80DE-4327E2F98D7F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2D18772B-20A3-4079-80DE-4327E2F98D7F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
