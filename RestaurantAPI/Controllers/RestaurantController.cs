@@ -24,7 +24,6 @@ namespace RestaurantAPI.Controllers
 
         }
 
-
         [HttpDelete]
         public void Delete()
         {
