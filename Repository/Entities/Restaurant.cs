@@ -17,5 +17,27 @@ namespace Repository.Entities
         public string PhoneNumber { get; set; }
         public List<Client> Clients { get; set; }
         public List<Waiter> Waiters { get; set; }
+
+        public Restaurant(string name, string address, string email, string phoneNumber)
+        {
+            Id = Guid.NewGuid();
+            Name = name;
+            Address = address;
+            Email = email;
+            PhoneNumber = phoneNumber;
+            Clients = new List<Client>();
+            Waiters = new List<Waiter>();
+        }
+
+        public Restaurant(string name, string address, string email, string phoneNumber, List<Client> clients, List<Waiter> waiters)
+        {
+            Id = Guid.NewGuid();
+            Name = name;
+            Address = address;
+            Email = email;
+            PhoneNumber = phoneNumber;
+            Clients = clients;
+            Waiters = waiters;
+        }
     }
 }
