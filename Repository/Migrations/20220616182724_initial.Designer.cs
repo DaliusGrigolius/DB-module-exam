@@ -10,7 +10,7 @@ using Repository.DbContexts;
 namespace Repository.Migrations
 {
     [DbContext(typeof(RestaurantDbContext))]
-    [Migration("20220616120451_initial")]
+    [Migration("20220616182724_initial")]
     partial class initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -114,7 +114,7 @@ namespace Repository.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid?>("RestaurantId")
+                    b.Property<Guid>("RestaurantId")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
@@ -148,9 +148,13 @@ namespace Repository.Migrations
 
             modelBuilder.Entity("Repository.Entities.Waiter", b =>
                 {
-                    b.HasOne("Repository.Entities.Restaurant", null)
+                    b.HasOne("Repository.Entities.Restaurant", "Restaurant")
                         .WithMany("Waiters")
-                        .HasForeignKey("RestaurantId");
+                        .HasForeignKey("RestaurantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Restaurant");
                 });
 
             modelBuilder.Entity("Repository.Entities.Restaurant", b =>

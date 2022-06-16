@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Repository.Entities
 {
@@ -16,6 +17,9 @@ namespace Repository.Entities
         [Required]
         public int Age { get; set; }
         public List<Client> Clients { get; set; }
+        [ForeignKey("Restaurant")]
+        public Guid RestaurantId { get; set; }
+        public Restaurant Restaurant { get; set; }
 
         public Waiter(string firstName, string lastName, string gender, int age)
         {
