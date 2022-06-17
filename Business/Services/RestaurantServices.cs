@@ -10,29 +10,28 @@ namespace Business.Services
 {
     public class RestaurantServices
     {
-        public void CreateFullRestaurant(string restaurantName, string restaurantAddress, string restaurantEmail, string restaurantPhone)
+        public void CreateFullRestaurant(string restaurantName, string restaurantAddress, string restaurantEmail, string restaurantPhone, int waitersNumber, int clientsNumber)
         {
             RestaurantDbContext rdbc = new RestaurantDbContext();
 
-            List<Client> clients = new List<Client>
+            List<Client> clients = new List<Client>();
+            for (int i = 0; i < clientsNumber; i++)
             {
-                new Client("FirstName1", "LastName1"),
-                new Client("FirstName2", "LastName2"),
-                new Client("FirstName3", "LastName3"),
-                new Client("FirstName4", "LastName4"),
-                new Client("FirstName5", "LastName5"),
-            };
+                clients.Add(new Client($"FirstName{i}", $"LastName{i}"));
+            }
 
-            List<Waiter> waiters = new List<Waiter>
+            List<Waiter> waiters = new List<Waiter>();
+            for (int i = 0; i < waitersNumber; i++)
             {
-                new Waiter("FirstName1", "LastName1", "Female", 18),
-                new Waiter("FirstName1", "LastName1", "Male", 19),
-                new Waiter("FirstName1", "LastName1", "Female", 22),
-                new Waiter("FirstName1", "LastName1", "Female", 20),
-                new Waiter("FirstName1", "LastName1", "Male", 21),
-            };
+                waiters.Add(new Waiter($"FirstName{i}", $"LastName{i}", "Male", 18 + i));
+            }
 
-            rdbc.Add(new Restaurant(restaurantName, restaurantAddress, restaurantEmail, restaurantPhone, clients, waiters));
+            for (int i = 0; i < waiters.Count; i++)
+            {
+                waiters[i].Clients.AddRange(clients);
+            }
+
+            rdbc.Restaurants.Add(new Restaurant(restaurantName, restaurantAddress, restaurantEmail, restaurantPhone, clients, waiters));
             rdbc.SaveChanges();
         }
 
