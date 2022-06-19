@@ -17,19 +17,23 @@ namespace Business.Services
             existingWaiters = GetExistingWaiters();
         }
 
-        public void CreateNewRestaurantWithNewAndExistingWaitersAndClients(string restaurantName, string restaurantAddress, string restaurantEmail, string restaurantPhone, int waitersNumber, int clientsNumber)
+        public string CreateNewRestaurantWithNewAndExistingWaitersAndClients(string restaurantName, string restaurantAddress, string restaurantEmail, string restaurantPhone, int waitersNumber, int clientsNumber)
         {
             var clients = CreateClients(clientsNumber, existingClients);
             var waiters = CreateWaiters(waitersNumber, existingWaiters);
             AssignClientsToWaiters(clients, waiters);
             rdbc.Add(new Restaurant(restaurantName, restaurantAddress, restaurantEmail, restaurantPhone, clients, waiters));
             rdbc.SaveChanges();
+
+            return "Success! Restaurant created.";
         }
 
-        public void CreateNewRestaurantOnlyWithExistingWaitersAndClients(string restaurantName, string restaurantAddress, string restaurantEmail, string restaurantPhone)
+        public string CreateNewRestaurantOnlyWithExistingWaitersAndClients(string restaurantName, string restaurantAddress, string restaurantEmail, string restaurantPhone)
         {
             rdbc.Add(new Restaurant(restaurantName, restaurantAddress, restaurantEmail, restaurantPhone, existingClients, existingWaiters));
             rdbc.SaveChanges();
+
+            return "Success! Restaurant created.";
         }
 
         private List<Client> CreateClients(int clientsNumber, List<Client> clients)
