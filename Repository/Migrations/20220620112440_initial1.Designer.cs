@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Repository.DbContexts;
 
 namespace Repository.Migrations
 {
     [DbContext(typeof(RestaurantDbContext))]
-    partial class RestaurantDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220620112440_initial1")]
+    partial class initial1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -54,7 +56,7 @@ namespace Repository.Migrations
                     b.Property<string>("PhoneNumber")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("RestaurantId")
+                    b.Property<Guid?>("RestaurantId")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
@@ -139,13 +141,9 @@ namespace Repository.Migrations
 
             modelBuilder.Entity("Repository.Entities.Client", b =>
                 {
-                    b.HasOne("Repository.Entities.Restaurant", "Restaurant")
+                    b.HasOne("Repository.Entities.Restaurant", null)
                         .WithMany("Clients")
-                        .HasForeignKey("RestaurantId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.Navigation("Restaurant");
+                        .HasForeignKey("RestaurantId");
                 });
 
             modelBuilder.Entity("Repository.Entities.Waiter", b =>

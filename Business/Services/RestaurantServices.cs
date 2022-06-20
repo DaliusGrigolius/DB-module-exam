@@ -1,5 +1,6 @@
 ﻿using Repository.DbContexts;
 using Repository.Entities;
+using System;
 using System.Collections.Generic;
 
 namespace Business.Services
@@ -40,7 +41,7 @@ namespace Business.Services
         {
             for (int i = 0; i < clientsNumber; i++)
             {
-                clients.Add(new Client($"FirstName{i}", $"LastName{i}"));
+                clients.Add(new Client($"FirstName{i}", $"LastName{i}", new Guid("C9C062E1-E803-4A2A-9248-EEB564253357")));
             }
             return clients;
         }
@@ -65,7 +66,7 @@ namespace Business.Services
         private List<Client> GetExistingClients()
         {
             var list = new List<Client>();
-            foreach (var client in rdbc.Clients)
+            foreach (var client in rdbc.ClientsDb)
             {
                 list.Add(client);
             }
@@ -75,7 +76,7 @@ namespace Business.Services
         private List<Waiter> GetExistingWaiters()
         {
             var list = new List<Waiter>();
-            foreach (var client in rdbc.Waiters)
+            foreach (var client in rdbc.WaitersDb)
             {
                 list.Add(client);
             }
