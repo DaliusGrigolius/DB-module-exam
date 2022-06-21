@@ -2,85 +2,61 @@
 using Repository.Entities;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Business.Services
 {
     public class RestaurantServices
     {
-        private RestaurantDbContext rdbc { get; }
-        private List<Client> existingClients { get; }
-        private List<Waiter> existingWaiters { get; }
-
-        public RestaurantServices()
+        public string CreateRestaurantWithNewWaitersAndClients(string name, string address, string email, string phone, int waitersNumber, int clientsNumber)
         {
-            rdbc = new RestaurantDbContext();
-            existingClients = GetExistingClients();
-            existingWaiters = GetExistingWaiters();
+            RestaurantDbContext rdbc = new();
+            rdbc.Add(new Restaurant(name, address, email, phone));
+            rdbc.SaveChanges();
+
+            var restByPhoneNumber = rdbc.Restaurants.Where(i => i.PhoneNumber == phone).SingleOrDefault();
+
+            CreateClients(clientsNumber, restByPhoneNumber.Id, restByPhoneNumber);
+            CreateWaiters(waitersNumber, restByPhoneNumber.Id, restByPhoneNumber);
+
+            return "Success! Restaurant created.";
         }
 
-        public string CreateNewRestaurantWithNewAndExistingWaitersAndClients(string restaurantName, string restaurantAddress, string restaurantEmail, string restaurantPhone, int waitersNumber, int clientsNumber)
+        public string CreateEmptyRestaurant(string restaurantName, string restaurantAddress, string restaurantEmail, string restaurantPhone)
         {
-            var clients = CreateClients(clientsNumber, existingClients);
-            var waiters = CreateWaiters(waitersNumber, existingWaiters);
-            AssignClientsToWaiters(clients, waiters);
-            rdbc.Add(new Restaurant(restaurantName, restaurantAddress, restaurantEmail, restaurantPhone, clients, waiters));
+            RestaurantDbContext rdbc = new();
+            rdbc.Add(new Restaurant(restaurantName, restaurantAddress, restaurantEmail, restaurantPhone));
             rdbc.SaveChanges();
 
             return "Success! Restaurant created.";
         }
 
-        public string CreateNewRestaurantOnlyWithExistingWaitersAndClients(string restaurantName, string restaurantAddress, string restaurantEmail, string restaurantPhone)
+        private void CreateClients(int clientsNumber, Guid restId, Restaurant restaurant)
         {
-            rdbc.Add(new Restaurant(restaurantName, restaurantAddress, restaurantEmail, restaurantPhone, existingClients, existingWaiters));
-            rdbc.SaveChanges();
-
-            return "Success! Restaurant created.";
-        }
-
-        private List<Client> CreateClients(int clientsNumber, List<Client> clients)
-        {
+            RestaurantDbContext rdbc = new();
             for (int i = 0; i < clientsNumber; i++)
             {
-                clients.Add(new Client($"FirstName{i}", $"LastName{i}", new Guid("C9C062E1-E803-4A2A-9248-EEB564253357")));
+                restaurant.Clients.Add(new Client($"FirstName{i}", $"LastName{i}", restId));
             }
-            return clients;
+            rdbc.SaveChanges();
         }
 
-        private List<Waiter> CreateWaiters(int waitersNumber, List<Waiter> waiters)
+        private void CreateWaiters(int waitersNumber, Guid restId, Restaurant restaurant)
         {
+            RestaurantDbContext rdbc = new();
             for (int i = 0; i < waitersNumber; i++)
             {
-                waiters.Add(new Waiter($"FirstName{i}", $"LastName{i}", "Male", 18 + i));
+                restaurant.Waiters.Add(new Waiter($"FirstName{i}", $"LastName{i}", "Male", 18 + i, restId));
             }
-            return waiters;
+            rdbc.SaveChanges();
         }
 
-        private void AssignClientsToWaiters(List<Client> clients, List<Waiter> waiters)
-        {
-            for (int i = 0; i < waiters.Count; i++)
-            {
-                waiters[i].Clients.AddRange(clients);
-            }
-        }
-
-        private List<Client> GetExistingClients()
-        {
-            var list = new List<Client>();
-            foreach (var client in rdbc.ClientsDb)
-            {
-                list.Add(client);
-            }
-            return list;
-        }
-
-        private List<Waiter> GetExistingWaiters()
-        {
-            var list = new List<Waiter>();
-            foreach (var client in rdbc.WaitersDb)
-            {
-                list.Add(client);
-            }
-            return list;
-        }
+        //private void AssignClientsToWaiters(List<Client> clients, List<Waiter> waiters)
+        //{
+        //    for (int i = 0; i < waiters.Count; i++)
+        //    {
+        //        waiters[i].Clients.AddRange(clients);
+        //    }
+        //}
     }
 }

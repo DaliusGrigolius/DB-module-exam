@@ -61,7 +61,7 @@ namespace Repository.Migrations
 
                     b.HasIndex("RestaurantId");
 
-                    b.ToTable("ClientsDb");
+                    b.ToTable("Clients");
                 });
 
             modelBuilder.Entity("Repository.Entities.Restaurant", b =>
@@ -88,7 +88,7 @@ namespace Repository.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("RestaurantsDb");
+                    b.ToTable("Restaurants");
                 });
 
             modelBuilder.Entity("Repository.Entities.Waiter", b =>
@@ -119,7 +119,7 @@ namespace Repository.Migrations
 
                     b.HasIndex("RestaurantId");
 
-                    b.ToTable("WaitersDb");
+                    b.ToTable("Waiters");
                 });
 
             modelBuilder.Entity("ClientWaiter", b =>

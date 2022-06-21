@@ -10,8 +10,8 @@ using Repository.DbContexts;
 namespace Repository.Migrations
 {
     [DbContext(typeof(RestaurantDbContext))]
-    [Migration("20220620170028_initial3")]
-    partial class initial3
+    [Migration("20220621154915_initial")]
+    partial class initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -63,7 +63,7 @@ namespace Repository.Migrations
 
                     b.HasIndex("RestaurantId");
 
-                    b.ToTable("ClientsDb");
+                    b.ToTable("Clients");
                 });
 
             modelBuilder.Entity("Repository.Entities.Restaurant", b =>
@@ -90,7 +90,7 @@ namespace Repository.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("RestaurantsDb");
+                    b.ToTable("Restaurants");
                 });
 
             modelBuilder.Entity("Repository.Entities.Waiter", b =>
@@ -121,7 +121,7 @@ namespace Repository.Migrations
 
                     b.HasIndex("RestaurantId");
 
-                    b.ToTable("WaitersDb");
+                    b.ToTable("Waiters");
                 });
 
             modelBuilder.Entity("ClientWaiter", b =>

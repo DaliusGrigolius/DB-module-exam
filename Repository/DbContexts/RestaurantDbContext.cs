@@ -5,9 +5,9 @@ namespace Repository.DbContexts
 {
     public class RestaurantDbContext : DbContext
     {
-        public DbSet<Restaurant> RestaurantsDb { get; set; }
-        public DbSet<Client> ClientsDb { get; set; }
-        public DbSet<Waiter> WaitersDb { get; set; }
+        public DbSet<Restaurant> Restaurants { get; set; }
+        public DbSet<Client> Clients { get; set; }
+        public DbSet<Waiter> Waiters { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder builder)
         {
