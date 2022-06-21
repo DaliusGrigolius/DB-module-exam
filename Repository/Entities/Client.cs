@@ -14,16 +14,20 @@ namespace Repository.Entities
         public string PhoneNumber { get; set; }
         public string Email { get; set; }
         public List<Waiter> Waiters { get; set; }
+        [Required]
+        public Guid RestaurantId { get; set; }
+        public Restaurant Restaurant { get; set; }
 
-        public Client(string firstName, string lastName)
+        public Client(string firstName, string lastName, Guid restaurantId)
         {
             Id = Guid.NewGuid();
             FirstName = firstName;
             LastName = lastName;
             Waiters = new List<Waiter>();
+            RestaurantId = restaurantId;
         }
 
-        public Client(string firstName, string lastName, string phoneNumber, string email)
+        public Client(string firstName, string lastName, string phoneNumber, string email, Guid restaurantId)
         {
             Id = Guid.NewGuid();
             FirstName = firstName;
@@ -31,6 +35,7 @@ namespace Repository.Entities
             PhoneNumber = phoneNumber;
             Email = email;
             Waiters = new List<Waiter>();
+            RestaurantId = restaurantId;
         }
     }
 }

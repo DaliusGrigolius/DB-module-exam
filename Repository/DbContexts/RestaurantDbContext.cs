@@ -13,5 +13,14 @@ namespace Repository.DbContexts
         {
             builder.UseSqlServer("Server=localhost;Database=RestaurantDB;Trusted_Connection=True;");
         }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Client>()
+                .HasOne(i => i.Restaurant)
+                .WithMany(i => i.Clients)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.NoAction);
+        }
     }
 }
