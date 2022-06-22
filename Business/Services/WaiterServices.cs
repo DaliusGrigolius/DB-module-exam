@@ -1,4 +1,5 @@
-﻿using Repository.DbContexts;
+﻿using Microsoft.EntityFrameworkCore;
+using Repository.DbContexts;
 using Repository.Entities;
 using System;
 using System.Linq;
@@ -14,33 +15,79 @@ namespace Business.Services
             Rdbc = new RestaurantDbContext();
         }
 
-        public string AddNewWaiterToSpecificRestaurant(string restaurantID, string waiterFirstName, string waiterLastName, string waiterGender, int waiterAge)
+        public Result AddNewWaiterToSpecificRestaurant(string restaurantID, string waiterFirstName, string waiterLastName, string waiterGender, int waiterAge)
         {
-            bool parse = Guid.TryParse(restaurantID, out Guid restaurantIDParsed);
-            if (!parse)
+            try
             {
-                return "Error: parsing was unsuccessful.";
-            }
+                bool parse = Guid.TryParse(restaurantID, out Guid restaurantIDParsed);
+                if (!parse)
+                {
+                    return new Result(false, "Error: parsing was unsuccessful.");
+                }
 
-            var rest = Rdbc.Restaurants.Find(restaurantIDParsed);
-            if (rest == null)
+                var restaurant = Rdbc.Restaurants.Find(restaurantIDParsed);
+                if (restaurant == null)
+                {
+                    return new Result(false, "Error! Restaurant not found!");
+                }
+
+                var clients = Rdbc.Clients.Where(i => i.RestaurantId == restaurantIDParsed).ToList();
+                var newWaiter = new Waiter(waiterFirstName, waiterLastName, waiterGender, waiterAge);
+                Rdbc.Add(newWaiter);
+                restaurant.Waiters.Add(newWaiter);
+
+                foreach (var client in clients)
+                {
+                    client.Waiters.Add(newWaiter);
+                }
+
+                Rdbc.SaveChanges();
+
+                return new Result(true, "Success! New waiter added");
+            }
+            catch (Exception e)
             {
-                return "Error! Restaurant not found!";
+                return new Result(false, $"Error: {e.Message}");
             }
+        }
 
-            var rest1 = Rdbc.Clients.Where(i => i.RestaurantId == restaurantIDParsed).ToList();
-            var newWaiter = new Waiter(waiterFirstName, waiterLastName, waiterGender, waiterAge);
-            Rdbc.Add(newWaiter);
-            rest.Waiters.Add(newWaiter);
-
-            foreach (var client in rest1)
+        public Result TransferTheWaiterToAnotherRestaurant(Guid waiterId, Guid moveIntoRestaurantId)
+        {
+            try
             {
-                client.Waiters.Add(newWaiter);
+                var waiter = Rdbc.Waiters
+                    .Include(i => i.Clients)
+                    .Where(i => i.Id == waiterId)
+                    .SingleOrDefault();
+                waiter.RestaurantId = moveIntoRestaurantId;
+                Rdbc.Waiters.Update(waiter);
+                waiter.Clients.ForEach(i => i.RestaurantId = moveIntoRestaurantId); 
+                Rdbc.SaveChanges();
+
+                return new Result(true, "Success! Waiter transfered.");
             }
+            catch (Exception e)
+            {
+                return new Result(false, $"Error: {e.Message}");
+            }
+        }
 
-            Rdbc.SaveChanges();
+        public Result DeleteTheWaiter(Guid waiterId)
+        {
+            try
+            {
+                var waiter = Rdbc.Waiters
+                    .Where(i => i.Id == waiterId)
+                    .SingleOrDefault();
+                Rdbc.Waiters.Remove(waiter);
+                Rdbc.SaveChanges();
 
-            return "Success! New waiter added";
+                return new Result(true, "Success! Waiter deleted.");
+            }
+            catch (Exception e)
+            {
+                return new Result(false, $"Error: {e.Message}");
+            }
         }
     }
 }
