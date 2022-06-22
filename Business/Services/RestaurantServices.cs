@@ -2,61 +2,75 @@
 using Repository.Entities;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Business.Services
 {
     public class RestaurantServices
     {
+        private RestaurantDbContext Rdbc { get; }
+
+        public RestaurantServices()
+        {
+            Rdbc = new();           
+        }
+
         public string CreateRestaurantWithNewWaitersAndClients(string name, string address, string email, string phone, int waitersNumber, int clientsNumber)
         {
-            RestaurantDbContext rdbc = new();
-            rdbc.Add(new Restaurant(name, address, email, phone));
-            rdbc.SaveChanges();
+            try
+            {
+                var newRest = new Restaurant(name, address, email, phone);
 
-            var restByPhoneNumber = rdbc.Restaurants.Where(i => i.PhoneNumber == phone).SingleOrDefault();
+                var newClients = CreateClients(clientsNumber, newRest.Id);
+                var newWaiters = CreateWaiters(waitersNumber);
+                AssignClientsToWaiters(newClients, newWaiters);
+                newRest.Waiters.AddRange(newWaiters);
+                newRest.Clients.AddRange(newClients);
+                Rdbc.Add(newRest);
 
-            CreateClients(clientsNumber, restByPhoneNumber.Id, restByPhoneNumber);
-            CreateWaiters(waitersNumber, restByPhoneNumber.Id, restByPhoneNumber);
+                Rdbc.SaveChanges();
 
-            return "Success! Restaurant created.";
+                return "Success! Restaurant created.";
+            }
+            catch (Exception e)
+            {
+                return $"Error: {e}";
+            }
         }
 
         public string CreateEmptyRestaurant(string restaurantName, string restaurantAddress, string restaurantEmail, string restaurantPhone)
         {
-            RestaurantDbContext rdbc = new();
-            rdbc.Add(new Restaurant(restaurantName, restaurantAddress, restaurantEmail, restaurantPhone));
-            rdbc.SaveChanges();
+            Rdbc.Add(new Restaurant(restaurantName, restaurantAddress, restaurantEmail, restaurantPhone));
+            Rdbc.SaveChanges();
 
             return "Success! Restaurant created.";
         }
 
-        private void CreateClients(int clientsNumber, Guid restId, Restaurant restaurant)
+        private List<Client> CreateClients(int clientsNumber, Guid restId)
         {
-            RestaurantDbContext rdbc = new();
+            List<Client> list = new();
             for (int i = 0; i < clientsNumber; i++)
             {
-                restaurant.Clients.Add(new Client($"FirstName{i}", $"LastName{i}", restId));
+                list.Add(new Client($"FirstName{i}", $"LastName{i}", restId));
             }
-            rdbc.SaveChanges();
+            return list;
         }
 
-        private void CreateWaiters(int waitersNumber, Guid restId, Restaurant restaurant)
+        private List<Waiter> CreateWaiters(int waitersNumber)
         {
-            RestaurantDbContext rdbc = new();
+            List<Waiter> list = new();
             for (int i = 0; i < waitersNumber; i++)
             {
-                restaurant.Waiters.Add(new Waiter($"FirstName{i}", $"LastName{i}", "Male", 18 + i, restId));
+               list.Add(new Waiter($"FirstName{i}", $"LastName{i}", "Male", 18 + i));
             }
-            rdbc.SaveChanges();
+            return list;
         }
 
-        //private void AssignClientsToWaiters(List<Client> clients, List<Waiter> waiters)
-        //{
-        //    for (int i = 0; i < waiters.Count; i++)
-        //    {
-        //        waiters[i].Clients.AddRange(clients);
-        //    }
-        //}
+        private void AssignClientsToWaiters(List<Client> clients, List<Waiter> waiters)
+        {
+            for (int i = 0; i < waiters.Count; i++)
+            {
+                waiters[i].Clients.AddRange(clients);
+            }
+        }
     }
 }

@@ -14,11 +14,11 @@ namespace ConsoleApp1
             WaiterServices ws = new WaiterServices();
             RestaurantServices rs = new RestaurantServices();
 
-            //Console.WriteLine(ws.AddNewWaiterToSpecificRestaurant("3AB02D73-19E1-422A-A47D-B86AA938A342", "waiter2", "waiter2", "male", 19));
-            //Console.WriteLine(cs.AddNewClientToSpecificRestaurant("5034C81F-014D-4D36-A844-70EDAF0F7C71", "client3", "client3"));
-            //Console.WriteLine(cs.AddNewClientToSpecificRestaurant("3AB02D73-19E1-422A-A47D-B86AA938A342", "client4", "client4"));
+            Console.WriteLine(ws.AddNewWaiterToSpecificRestaurant("22856010-8878-4013-ABB3-5CA0C9F03B8A", "tesc", "tesc", "tesc", 20));
+            //Console.WriteLine(cs.AddNewClientToSpecificRestaurant("57139EDF-9B96-407A-884B-77416B3304D8", "client1", "client1"));
+            //Console.WriteLine(cs.AddNewClientToSpecificRestaurant("22856010-8878-4013-ABB3-5CA0C9F03B8A", "tesc", "tesc"));
 
-            Console.WriteLine(rs.CreateRestaurantWithNewWaitersAndClients("R7", "address6", "email6", "phone8", 5, 5));
+            //Console.WriteLine(rs.CreateRestaurantWithNewWaitersAndClients("R2", "address2", "email2", "phone2", 2, 2));
             //Console.WriteLine(cs.TransferTheClientToAnotherRestaurant(new Guid("4BF74786-5A57-441D-9003-B67B45B484FA"), new Guid("5034C81F-014D-4D36-A844-70EDAF0F7C71")));
             //Console.WriteLine(cs.TransferTheClientToAnotherRestaurant(new Guid("3B778653-197A-4BD5-8EC6-423476A0FF3A"), new Guid("5034C81F-014D-4D36-A844-70EDAF0F7C71")));
             //Console.WriteLine(cs.DeleteTheClient(new Guid("3B778653-197A-4BD5-8EC6-423476A0FF3A")));

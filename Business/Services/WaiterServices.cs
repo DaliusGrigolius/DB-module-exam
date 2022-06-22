@@ -28,12 +28,12 @@ namespace Business.Services
                 return "Error! Restaurant not found!";
             }
 
-            var newWaiter = new Waiter(waiterFirstName, waiterLastName, waiterGender, waiterAge, restaurantIDParsed);
-            Rdbc.Waiters.Add(newWaiter);
+            var rest1 = Rdbc.Clients.Where(i => i.RestaurantId == restaurantIDParsed).ToList();
+            var newWaiter = new Waiter(waiterFirstName, waiterLastName, waiterGender, waiterAge);
+            Rdbc.Add(newWaiter);
+            rest.Waiters.Add(newWaiter);
 
-            var clients = Rdbc.Clients.Where(i => i.RestaurantId == restaurantIDParsed).ToList();
-            
-            foreach (var client in clients)
+            foreach (var client in rest1)
             {
                 client.Waiters.Add(newWaiter);
             }
