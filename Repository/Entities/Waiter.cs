@@ -21,7 +21,7 @@ namespace Repository.Entities
         public Guid RestaurantId { get; set; }
         public Restaurant Restaurant { get; set; }
 
-        public Waiter(string firstName, string lastName, string gender, int age, Guid restaurantId)
+        public Waiter(string firstName, string lastName, string gender, int age)
         {
             Id = Guid.NewGuid();
             FirstName = firstName;
@@ -29,7 +29,6 @@ namespace Repository.Entities
             Gender = gender;
             Age = age;
             Clients = new List<Client>();
-            RestaurantId = restaurantId;
         }
     }
 }

@@ -10,7 +10,7 @@ using Repository.DbContexts;
 namespace Repository.Migrations
 {
     [DbContext(typeof(RestaurantDbContext))]
-    [Migration("20220621154915_initial")]
+    [Migration("20220622093749_initial")]
     partial class initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
