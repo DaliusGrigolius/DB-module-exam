@@ -2,77 +2,90 @@
 using Repository.DbContexts;
 using Repository.Entities;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace Business.Services
 {
     public class ClientServices
     {
-        public string AddNewClientToSpecificRestaurant(string restaurantID, string clientFirstName, string clientLastName)
+        private RestaurantDbContext Rdbc { get; }
+
+        public ClientServices()
         {
-            RestaurantDbContext rdbc = new();
-
-            bool parse = Guid.TryParse(restaurantID, out Guid restaurantIDParsed);
-            if (!parse)
-            {
-                return "Error: parsing was unsuccessful.";
-            }
-
-            var rest = rdbc.Restaurants.Find(restaurantIDParsed);
-            if (rest == null)
-            {
-                return "Error! Restaurant not found!";
-            }
-
-            var rest1 = rdbc.Waiters.Where(i => i.RestaurantId == restaurantIDParsed).ToList();
-            var newClient = new Client(clientFirstName, clientLastName, restaurantIDParsed);
-            rdbc.Clients.Add(newClient);
-            foreach (var waiter in rest1)
-            {
-                waiter.Clients.Add(newClient);
-            }
-
-            rdbc.SaveChanges();
-
-            return "Success! New client added";
+            Rdbc = new();
         }
 
-        public string TransferTheClientToAnotherRestaurant(Guid clientId, Guid moveIntoRestaurantId)
+        public Result AddNewClientToSpecificRestaurant(string restaurantID, string clientFirstName, string clientLastName)
         {
-            RestaurantDbContext rdbc = new();
-
             try
             {
-                var client = rdbc.Clients
+                bool parse = Guid.TryParse(restaurantID, out Guid restaurantIDParsed);
+                if (!parse)
+                {
+                    return new Result(false, "Error! parsing unsuccessful.");
+                }
+
+                var rest = Rdbc.Restaurants.Find(restaurantIDParsed);
+                if (rest == null)
+                {
+                    return new Result(false, "Error! Restaurant not found!");
+                }
+
+                var waiters = Rdbc.Waiters.Where(i => i.RestaurantId == restaurantIDParsed).ToList();
+                var newClient = new Client(clientFirstName, clientLastName, restaurantIDParsed);
+                Rdbc.Clients.Add(newClient);
+                foreach (var waiter in waiters)
+                {
+                    waiter.Clients.Add(newClient);
+                }
+
+                Rdbc.SaveChanges();
+               
+                return new Result(true, "Success! New client added");
+            }
+            catch (Exception e)
+            {
+                return new Result(false, $"Error: {e.Message}");
+            }
+        }
+
+        public Result TransferTheClientToAnotherRestaurant(Guid clientId, Guid moveIntoRestaurantId)
+        {
+            try
+            {
+                var client = Rdbc.Clients
+                    .Include(i => i.Waiters)
                     .Where(i => i.Id == clientId)
-                    //.AsTracking()
                     .SingleOrDefault();
-
                 client.RestaurantId = moveIntoRestaurantId;
-                rdbc.Clients.Update(client);
-                rdbc.SaveChanges();
+                Rdbc.Clients.Update(client);
+                client.Waiters.ForEach(i => i.RestaurantId = moveIntoRestaurantId);
+                Rdbc.SaveChanges();
 
-                return "Success! Client transfered.";
+                return new Result(true, "Success! Client transfered.");
             }
             catch(Exception e)
             {
-                return $"Error: {e}";
+                return new Result(false, $"Error: {e.Message}");
             }
         }
 
-        public string DeleteTheClient(Guid clientId)
+        public Result DeleteTheClient(Guid clientId)
         {
-            RestaurantDbContext rdbc = new();
-
-            var client = rdbc.Clients
+            try
+            {
+                var client = Rdbc.Clients
                     .Where(i => i.Id == clientId)
-                    //.AsTracking()
                     .SingleOrDefault();
-            rdbc.Clients.Remove(client);
-            rdbc.SaveChanges();
+                Rdbc.Clients.Remove(client);
+                Rdbc.SaveChanges();
 
-            return "Success! Client deleted.";
+                return new Result(true, "Success! Client deleted.");
+            }
+            catch (Exception e)
+            {
+                return new Result(false, $"Error: {e.Message}");
+            }
         }
     }
 }
