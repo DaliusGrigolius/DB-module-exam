@@ -52,17 +52,26 @@ namespace Business.Services
             }
         }
 
-        public Result TransferTheWaiterToAnotherRestaurant(Guid waiterId, Guid moveIntoRestaurantId)
+        public Result TransferTheWaiterToAnotherRestaurant(string waiterId, string moveIntoRestaurantId)
         {
             try
             {
+                bool parse = Guid.TryParse(waiterId, out Guid waiterIdParsed);
+                bool parse1 = Guid.TryParse(moveIntoRestaurantId, out Guid restaurnatIdParsed);
+
                 var waiter = Rdbc.Waiters
                     .Include(i => i.Clients)
-                    .Where(i => i.Id == waiterId)
-                    .SingleOrDefault();
-                waiter.RestaurantId = moveIntoRestaurantId;
+                    .FirstOrDefault(i => i.Id == waiterIdParsed);
+
+                waiter.Clients.Clear();
+                waiter.RestaurantId = restaurnatIdParsed;
+
+                var restaurant = Rdbc.Restaurants
+                    .Include(i => i.Clients)
+                    .FirstOrDefault(i => i.Id == restaurnatIdParsed);
+
+                waiter.Clients.AddRange(restaurant.Clients);
                 Rdbc.Waiters.Update(waiter);
-                waiter.Clients.ForEach(i => i.RestaurantId = moveIntoRestaurantId); 
                 Rdbc.SaveChanges();
 
                 return new Result(true, "Success! Waiter transfered.");
@@ -73,11 +82,12 @@ namespace Business.Services
             }
         }
 
-        public Result DeleteTheWaiter(Guid waiterId)
+        public Result DeleteTheWaiter(string waiterId)
         {
             try
             {
-                var waiter = Rdbc.Waiters.Find(waiterId);
+                bool parse = Guid.TryParse(waiterId, out Guid waiterIDParsed);
+                var waiter = Rdbc.Waiters.Find(waiterIDParsed);
                 Rdbc.Waiters.Remove(waiter);
                 Rdbc.SaveChanges();
 
@@ -89,11 +99,12 @@ namespace Business.Services
             }
         }
 
-        public Result AddNewDummyListOfWaitersToSpecificRestaurant(Guid restaurantId, int waitersNumber)
+        public Result AddNewDummyListOfWaitersToSpecificRestaurant(string restaurantId, int waitersNumber)
         {
             try
             {
-                var restaurant = Rdbc.Restaurants.Find(restaurantId);
+                bool parse = Guid.TryParse(restaurantId, out Guid restaurantIDParsed);
+                var restaurant = Rdbc.Restaurants.Find(restaurantIDParsed);
                 var waiters = new List<Waiter>();
                 for (int i = 0; i < waitersNumber; i++)
                 {
