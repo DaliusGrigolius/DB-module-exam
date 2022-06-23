@@ -20,7 +20,7 @@ namespace Repository.DbContexts
                 .HasOne(i => i.Restaurant)
                 .WithMany(i => i.Clients)
                 .IsRequired()
-                .OnDelete(DeleteBehavior.NoAction);
+                .OnDelete(DeleteBehavior.ClientCascade);
         }
     }
 }

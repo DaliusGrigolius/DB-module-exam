@@ -35,14 +35,14 @@ namespace ConsoleApp1
             //{
             //    Console.WriteLine("END OF LIFE!");
             //}
-            var result = cs.TransferTheClientToAnotherRestaurant(new Guid("99C97CEE-6C84-4985-931B-366B7F517F9D"), new Guid("22856010-8878-4013-ABB3-5CA0C9F03B8A"));
+            var result = rs.DeleteRestaurant(new Guid("969A4903-D9B2-4156-968E-C559D0426630"));
             if (result.IsSuccess)
             {
                 Console.WriteLine(result.Message);
             }
             else
             {
-                Console.WriteLine("END OF LIFE!");
+                Console.WriteLine(result.Message);
             }
             //Console.WriteLine(rs.CreateRestaurantWithNewWaitersAndClients("R2", "address2", "email2", "phone2", 2, 2));
             //Console.WriteLine(cs.TransferTheClientToAnotherRestaurant(new Guid("AAD70548-1F17-4F28-AF9B-30A94B68BA64"), new Guid("22856010-8878-4013-ABB3-5CA0C9F03B8A")));

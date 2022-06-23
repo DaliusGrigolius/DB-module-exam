@@ -1,7 +1,9 @@
-﻿using Repository.DbContexts;
+﻿using Microsoft.EntityFrameworkCore;
+using Repository.DbContexts;
 using Repository.Entities;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Business.Services
 {
@@ -14,7 +16,7 @@ namespace Business.Services
             Rdbc = new();           
         }
 
-        public string CreateRestaurantWithNewWaitersAndClients(string name, string address, string email, string phone, int waitersNumber, int clientsNumber)
+        public Result CreateRestaurantWithNewWaitersAndClients(string name, string address, string email, string phone, int waitersNumber, int clientsNumber)
         {
             try
             {
@@ -29,20 +31,85 @@ namespace Business.Services
 
                 Rdbc.SaveChanges();
 
-                return "Success! Restaurant created.";
+                return new Result(true, "Success! Restaurant created.");
             }
             catch (Exception e)
             {
-                return $"Error: {e}";
+                return new Result(false, $"Error: {e}");
             }
         }
 
-        public string CreateEmptyRestaurant(string restaurantName, string restaurantAddress, string restaurantEmail, string restaurantPhone)
+        public Result CreateEmptyRestaurant(string restaurantName, string restaurantAddress, string restaurantEmail, string restaurantPhone)
         {
-            Rdbc.Add(new Restaurant(restaurantName, restaurantAddress, restaurantEmail, restaurantPhone));
-            Rdbc.SaveChanges();
+            try
+            {
+                Rdbc.Add(new Restaurant(restaurantName, restaurantAddress, restaurantEmail, restaurantPhone));
+                Rdbc.SaveChanges();
 
-            return "Success! Restaurant created.";
+                return new Result(true, "Success! Restaurant created.");
+            }
+            catch (Exception e)
+            {
+                return new Result(false, $"Error: {e}");
+            }
+        }
+
+        public Result DeleteRestaurant(Guid restaurandId)
+        {
+            try
+            {
+                var restaurant = Rdbc.Restaurants
+                    .Include(i => i.Waiters)
+                    .ThenInclude(i => i.Clients)
+                    .Include(i => i.Clients)
+                    .ThenInclude(i => i.Waiters)
+                    .FirstOrDefault(i => i.Id == restaurandId);
+
+                Rdbc.Remove(restaurant);
+                Rdbc.SaveChanges();
+
+                return new Result(true, "Success! Restaurant deleted.");
+            }
+            catch (Exception e)
+            {
+                return new Result(false, $"Error: {e.Message}");
+            }
+        }
+
+        public List<Client> ShowAllSpecificRestaurantClients(Guid restaurantId)
+        {
+            try
+            {
+                var restaurant = Rdbc.Restaurants.Find(restaurantId);
+                var clientsList = new List<Client>();
+                foreach (var client in restaurant.Clients)
+                {
+                    clientsList.Add(client);
+                }
+                return clientsList;
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
+
+        public List<Waiter> ShowAllSpecificRestaurantWaiters(Guid restaurantId)
+        {
+            try
+            {
+                var restaurant = Rdbc.Restaurants.Find(restaurantId);
+                var waitersList = new List<Waiter>();
+                foreach (var waiter in restaurant.Waiters)
+                {
+                    waitersList.Add(waiter);
+                }
+                return waitersList;
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
         }
 
         private List<Client> CreateClients(int clientsNumber, Guid restId)
