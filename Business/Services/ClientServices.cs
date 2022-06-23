@@ -2,6 +2,7 @@
 using Repository.DbContexts;
 using Repository.Entities;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Business.Services
@@ -55,11 +56,11 @@ namespace Business.Services
             {
                 var client = Rdbc.Clients
                     .Include(i => i.Waiters)
-                    .Where(i => i.Id == clientId)
-                    .SingleOrDefault();
+                    .FirstOrDefault(i => i.Id == clientId);
+
                 client.RestaurantId = moveIntoRestaurantId;
                 Rdbc.Clients.Update(client);
-                client.Waiters.ForEach(i => i.RestaurantId = moveIntoRestaurantId);
+                client.Waiters.ForEach(i => i.RestaurantId = moveIntoRestaurantId);//----------
                 Rdbc.SaveChanges();
 
                 return new Result(true, "Success! Client transfered.");
@@ -85,6 +86,47 @@ namespace Business.Services
             catch (Exception e)
             {
                 return new Result(false, $"Error: {e.Message}");
+            }
+        }
+
+        public List<Client> ShowAllClientsBySpecificWaiter(Guid waiterId)
+        {
+            try
+            {
+                var waiter = Rdbc.Waiters.Find(waiterId);
+                var clientsList = new List<Client>();
+                foreach (var client in waiter.Clients)
+                {
+                    clientsList.Add(client);
+                }
+                return clientsList;
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
+
+        public Result AddNewDummyListOfClientsToSpecificRestaurant(Guid restaurantId, int clientsNumber)
+        {
+            try
+            {
+                var restaurant = Rdbc.Restaurants.Find(restaurantId);
+                var clients = new List<Client>();
+                for (int i = 0; i < clientsNumber; i++)
+                {
+                    clients.Add(new Client($"FirstName{i}", $"LastName{i}", restaurantId));
+                }
+                restaurant.Clients.AddRange(clients);
+                restaurant.Waiters.ForEach(i => i.Clients.AddRange(clients));
+
+                Rdbc.SaveChanges();
+
+                return new Result(true, $"Success! Clients added.");
+            }
+            catch (Exception e)
+            {
+                return new Result(false, $"Error: {e}");
             }
         }
     }

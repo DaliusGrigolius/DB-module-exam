@@ -2,6 +2,7 @@
 using Repository.DbContexts;
 using Repository.Entities;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Business.Services
@@ -76,9 +77,7 @@ namespace Business.Services
         {
             try
             {
-                var waiter = Rdbc.Waiters
-                    .Where(i => i.Id == waiterId)
-                    .SingleOrDefault();
+                var waiter = Rdbc.Waiters.Find(waiterId);
                 Rdbc.Waiters.Remove(waiter);
                 Rdbc.SaveChanges();
 
@@ -87,6 +86,29 @@ namespace Business.Services
             catch (Exception e)
             {
                 return new Result(false, $"Error: {e.Message}");
+            }
+        }
+
+        public Result AddNewDummyListOfWaitersToSpecificRestaurant(Guid restaurantId, int waitersNumber)
+        {
+            try
+            {
+                var restaurant = Rdbc.Restaurants.Find(restaurantId);
+                var waiters = new List<Waiter>();
+                for (int i = 0; i < waitersNumber; i++)
+                {
+                    waiters.Add(new Waiter($"FirstName{i}", $"LastName{i}", "Male", 19 + i));
+                }
+                restaurant.Waiters.AddRange(waiters);
+                restaurant.Clients.ForEach(i => i.Waiters.AddRange(waiters));
+
+                Rdbc.SaveChanges();
+
+                return new Result(true, $"Success! Waiters added.");
+            }
+            catch (Exception e)
+            {
+                return new Result(false, $"Error: {e}");
             }
         }
     }
