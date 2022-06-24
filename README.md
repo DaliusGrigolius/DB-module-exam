@@ -1,6 +1,6 @@
-# DB module exam APP
-
 # Restaurant network information system:
+
+![restss](https://user-images.githubusercontent.com/94862107/175649280-129ed95d-e583-4abd-8189-069230e33d84.PNG)
 
 # Entities:
 
