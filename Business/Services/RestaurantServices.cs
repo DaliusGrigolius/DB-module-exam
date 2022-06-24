@@ -54,22 +54,16 @@ namespace Business.Services
             }
         }
 
-        public Result DeleteRestaurant(string restaurantId)
+        public Result DeleteRestaurant(Guid restaurantId)
         {
             try
             {
-                bool parse = Guid.TryParse(restaurantId, out Guid restaurantIDParsed);
-                if (!parse)
-                {
-                    throw new Exception("Error: parsing was unsuccessful.");
-                }
-
                 var restaurant = Rdbc.Restaurants
                     .Include(i => i.Waiters)
                     .ThenInclude(i => i.Clients)
                     .Include(i => i.Clients)
                     .ThenInclude(i => i.Waiters)
-                    .FirstOrDefault(i => i.Id == restaurantIDParsed);
+                    .FirstOrDefault(i => i.Id == restaurantId);
 
                 Rdbc.Remove(restaurant);
                 Rdbc.SaveChanges();
@@ -82,52 +76,16 @@ namespace Business.Services
             }
         }
 
-        public List<Client> ShowAllSpecificRestaurantClients(string restaurantId)
+        public List<Client> ShowAllSpecificRestaurantClients(Guid restaurantId)
         {
-            try
-            {
-                bool parse = Guid.TryParse(restaurantId, out Guid restaurantIDParsed);
-                if (!parse)
-                {
-                    throw new Exception("Error: parsing was unsuccessful.");
-                }
-
-                var clients = Rdbc.Clients.Where(i => i.RestaurantId == restaurantIDParsed).ToList();
-                if (clients.Count < 1)
-                {
-                    throw new Exception("Error: restaurant has no clients");
-                }
-
-                return clients;
-            }
-            catch(Exception e)
-            {
-                throw new Exception(e.Message);
-            }
+            var clients = Rdbc.Clients.Where(i => i.RestaurantId == restaurantId).ToList();
+            return clients;
         }
 
-        public List<Waiter> ShowAllSpecificRestaurantWaiters(string restaurantId)
+        public List<Waiter> ShowAllSpecificRestaurantWaiters(Guid restaurantId)
         {
-            try
-            {
-                bool parse = Guid.TryParse(restaurantId, out Guid restaurantIDParsed);
-                if (!parse)
-                {
-                    throw new Exception("Error: parsing was unsuccessful.");
-                }
-
-                var waiters = Rdbc.Waiters.Where(i => i.RestaurantId == restaurantIDParsed).ToList();
-                if (waiters.Count < 1)
-                {
-                    throw new Exception("Error: restaurant has no waiters");
-                }
-
-                return waiters;
-            }
-            catch (Exception e)
-            {
-                throw new Exception(e.Message);
-            }
+            var waiters = Rdbc.Waiters.Where(i => i.RestaurantId == restaurantId).ToList();
+            return waiters;
         }
 
         private List<Client> CreateClients(int clientsNumber, Guid restId)

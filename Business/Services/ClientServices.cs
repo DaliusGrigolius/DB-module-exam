@@ -16,25 +16,20 @@ namespace Business.Services
             Rdbc = new();
         }
 
-        public Result AddNewClientToSpecificRestaurant(string restaurantID, string clientFirstName, string clientLastName)
+        public Result AddNewClientToSpecificRestaurant(Guid restaurantID, string clientFirstName, string clientLastName)
         {
             try
             {
-                bool parse = Guid.TryParse(restaurantID, out Guid restaurantIDParsed);
-                if (!parse)
-                {
-                    return new Result(false, "Error! parsing unsuccessful.");
-                }
-
-                var rest = Rdbc.Restaurants.Find(restaurantIDParsed);
+                var rest = Rdbc.Restaurants.Find(restaurantID);
                 if (rest == null)
                 {
                     return new Result(false, "Error! Restaurant not found!");
                 }
 
-                var waiters = Rdbc.Waiters.Where(i => i.RestaurantId == restaurantIDParsed).ToList();
-                var newClient = new Client(clientFirstName, clientLastName, restaurantIDParsed);
+                var waiters = Rdbc.Waiters.Where(i => i.RestaurantId == restaurantID).ToList();
+                var newClient = new Client(clientFirstName, clientLastName, restaurantID);
                 Rdbc.Clients.Add(newClient);
+
                 foreach (var waiter in waiters)
                 {
                     waiter.Clients.Add(newClient);
@@ -50,23 +45,20 @@ namespace Business.Services
             }
         }
 
-        public Result TransferTheClientToAnotherRestaurant(string clientId, string moveIntoRestaurantId)
+        public Result TransferTheClientToAnotherRestaurant(Guid clientId, Guid moveIntoRestaurantId)
         {
             try
             {
-                bool parse = Guid.TryParse(clientId, out Guid clientIDParsed);
-                bool parse1 = Guid.TryParse(moveIntoRestaurantId, out Guid restaurnatIdParsed);
-
                 var client = Rdbc.Clients
                     .Include(i => i.Waiters)
-                    .FirstOrDefault(i => i.Id == clientIDParsed);
+                    .FirstOrDefault(i => i.Id == clientId);
 
                 client.Waiters.Clear();
-                client.RestaurantId = restaurnatIdParsed;
+                client.RestaurantId = moveIntoRestaurantId;
 
                 var restaurant = Rdbc.Restaurants
                     .Include(i => i.Waiters)
-                    .FirstOrDefault(i => i.Id == restaurnatIdParsed);
+                    .FirstOrDefault(i => i.Id == moveIntoRestaurantId);
 
                 client.Waiters.AddRange(restaurant.Waiters);
                 Rdbc.Clients.Update(client);
@@ -80,12 +72,11 @@ namespace Business.Services
             }
         }
 
-        public Result DeleteTheClient(string clientId)
+        public Result DeleteTheClient(Guid clientId)
         {
             try
             {
-                bool parse = Guid.TryParse(clientId, out Guid clientIDParsed);
-                var client = Rdbc.Clients.Find(clientIDParsed);
+                var client = Rdbc.Clients.Find(clientId);
                 Rdbc.Clients.Remove(client);
                 Rdbc.SaveChanges();
 
@@ -97,34 +88,33 @@ namespace Business.Services
             }
         }
 
-        public List<Client> ShowAllClientsBySpecificWaiter(string waiterId)
+        public List<Client> ShowAllClientsBySpecificWaiter(Guid waiterId)
         {
-            try
-            {
-                bool parse = Guid.TryParse(waiterId, out Guid waiterIDParsed);
-                var waiter = Rdbc.Waiters.Find(waiterIDParsed);
-                var clients = Rdbc.Clients.Where(i => i.RestaurantId == waiter.RestaurantId);
+            var waiter = Rdbc.Waiters.Find(waiterId);
+            var clients = Rdbc.Clients.Where(i => i.RestaurantId == waiter.RestaurantId);
 
-                return clients.ToList();
-            }
-            catch (Exception e)
-            {
-                throw new Exception(e.Message);
-            }
+            return clients.ToList();
         }
 
-        public Result AddNewDummyListOfClientsToSpecificRestaurant(string restaurantId, int clientsNumber)
+        public Result AddNewDummyListOfClientsToSpecificRestaurant(Guid restaurantId, int clientsNumber)
         {
             try
             {
-                bool parse = Guid.TryParse(restaurantId, out Guid restaurantIDParsed);
-                var restaurant = Rdbc.Restaurants.Find(restaurantIDParsed);
+                var restaurant = Rdbc.Restaurants
+                    .Include(i => i.Waiters)
+                    .ThenInclude(i => i.Clients)
+                    .Include(i => i.Clients)
+                    .ThenInclude(i => i.Waiters)
+                    .FirstOrDefault(i => i.Id == restaurantId);
+
                 var clients = new List<Client>();
                 for (int i = 0; i < clientsNumber; i++)
                 {
-                    clients.Add(new Client($"FirstName{i}", $"LastName{i}", restaurantIDParsed));
+                    clients.Add(new Client($"FirstName{i}", $"LastName{i}", restaurantId));
                 }
-                restaurant.Clients.AddRange(clients);
+
+                clients.ForEach(i => i.Waiters.AddRange(restaurant.Waiters));
+                Rdbc.Clients.AddRange(clients);
                 restaurant.Waiters.ForEach(i => i.Clients.AddRange(clients));
 
                 Rdbc.SaveChanges();
