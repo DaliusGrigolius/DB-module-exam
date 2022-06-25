@@ -52,6 +52,10 @@ namespace Business.Services
                 var client = Rdbc.Clients
                     .Include(i => i.Waiters)
                     .FirstOrDefault(i => i.Id == clientId);
+                if (client == null)
+                {
+                    return new Result(false, "Error! Client not found!");
+                }
 
                 client.Waiters.Clear();
                 client.RestaurantId = moveIntoRestaurantId;
@@ -59,6 +63,10 @@ namespace Business.Services
                 var restaurant = Rdbc.Restaurants
                     .Include(i => i.Waiters)
                     .FirstOrDefault(i => i.Id == moveIntoRestaurantId);
+                if (restaurant == null)
+                {
+                    return new Result(false, "Error! Restaurant not found!");
+                }
 
                 client.Waiters.AddRange(restaurant.Waiters);
                 Rdbc.Clients.Update(client);
@@ -77,6 +85,11 @@ namespace Business.Services
             try
             {
                 var client = Rdbc.Clients.Find(clientId);
+                if (client == null)
+                {
+                    return new Result(false, "Error! Client not found!");
+                }
+
                 Rdbc.Clients.Remove(client);
                 Rdbc.SaveChanges();
 
@@ -106,6 +119,10 @@ namespace Business.Services
                     .Include(i => i.Clients)
                     .ThenInclude(i => i.Waiters)
                     .FirstOrDefault(i => i.Id == restaurantId);
+                if (restaurant == null)
+                {
+                    return new Result(false, "Error! Restaurant not found!");
+                }
 
                 var clients = new List<Client>();
                 for (int i = 0; i < clientsNumber; i++)
