@@ -53,13 +53,22 @@ namespace Business.Services
                 var waiter = Rdbc.Waiters
                     .Include(i => i.Clients)
                     .FirstOrDefault(i => i.Id == waiterId);
-
-                waiter.Clients.Clear();
-                waiter.RestaurantId = moveIntoRestaurantId;
+                if (waiter == null)
+                {
+                    return new Result(false, "Error! Waiter not found!");
+                }
 
                 var restaurant = Rdbc.Restaurants
                     .Include(i => i.Clients)
                     .FirstOrDefault(i => i.Id == moveIntoRestaurantId);
+                if (restaurant == null)
+                {
+                    return new Result(false, "Error! Restaurant not found!");
+                }
+
+                waiter.Clients.Clear();
+                waiter.RestaurantId = moveIntoRestaurantId;
+
 
                 waiter.Clients.AddRange(restaurant.Clients);
                 Rdbc.Waiters.Update(waiter);
@@ -78,6 +87,11 @@ namespace Business.Services
             try
             {
                 var waiter = Rdbc.Waiters.Find(waiterId);
+                if (waiter == null)
+                {
+                    return new Result(false, "Error! Waiter not found!");
+                }
+
                 Rdbc.Waiters.Remove(waiter);
                 Rdbc.SaveChanges();
 
@@ -99,12 +113,17 @@ namespace Business.Services
                     .Include(i => i.Clients)
                     .ThenInclude(i => i.Waiters)
                     .FirstOrDefault(i => i.Id == restaurantId);
+                if (restaurant == null)
+                {
+                    return new Result(false, "Error! Restaurant not found!");
+                }
 
                 var waiters = new List<Waiter>();
                 for (int i = 0; i < waitersNumber; i++)
                 {
                     waiters.Add(new Waiter($"FirstName{i}", $"LastName{i}", "Male", 19 + i));
                 }
+
                 waiters.ForEach(i => i.RestaurantId = restaurantId);
                 waiters.ForEach(i => i.Clients.AddRange(restaurant.Clients));
                 Rdbc.Waiters.AddRange(waiters);

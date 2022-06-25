@@ -20,14 +20,14 @@ namespace Business.Services
         {
             try
             {
-                var newRest = new Restaurant(name, address, email, phone);
+                var newRestaurant = new Restaurant(name, address, email, phone);
 
-                var newClients = CreateClients(clientsNumber, newRest.Id);
+                var newClients = CreateClients(clientsNumber, newRestaurant.Id);
                 var newWaiters = CreateWaiters(waitersNumber);
                 AssignClientsToWaiters(newClients, newWaiters);
-                newRest.Waiters.AddRange(newWaiters);
-                newRest.Clients.AddRange(newClients);
-                Rdbc.Add(newRest);
+                newRestaurant.Waiters.AddRange(newWaiters);
+                newRestaurant.Clients.AddRange(newClients);
+                Rdbc.Add(newRestaurant);
 
                 Rdbc.SaveChanges();
 
@@ -64,6 +64,10 @@ namespace Business.Services
                     .Include(i => i.Clients)
                     .ThenInclude(i => i.Waiters)
                     .FirstOrDefault(i => i.Id == restaurantId);
+                if (restaurant == null)
+                {
+                    return new Result(false, "Error! Restaurant not found!");
+                }
 
                 Rdbc.Remove(restaurant);
                 Rdbc.SaveChanges();
@@ -78,22 +82,20 @@ namespace Business.Services
 
         public List<Client> ShowAllSpecificRestaurantClients(Guid restaurantId)
         {
-            var clients = Rdbc.Clients.Where(i => i.RestaurantId == restaurantId).ToList();
-            return clients;
+            return Rdbc.Clients.Where(i => i.RestaurantId == restaurantId).ToList();
         }
 
         public List<Waiter> ShowAllSpecificRestaurantWaiters(Guid restaurantId)
         {
-            var waiters = Rdbc.Waiters.Where(i => i.RestaurantId == restaurantId).ToList();
-            return waiters;
+            return Rdbc.Waiters.Where(i => i.RestaurantId == restaurantId).ToList();
         }
 
-        private List<Client> CreateClients(int clientsNumber, Guid restId)
+        private List<Client> CreateClients(int clientsNumber, Guid restaurantId)
         {
             List<Client> list = new();
             for (int i = 0; i < clientsNumber; i++)
             {
-                list.Add(new Client($"FirstName{i}", $"LastName{i}", restId));
+                list.Add(new Client($"FirstName{i}", $"LastName{i}", restaurantId));
             }
             return list;
         }
