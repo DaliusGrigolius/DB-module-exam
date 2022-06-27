@@ -1,6 +1,8 @@
 ﻿using Business;
 using Business.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Repository.DbContexts;
 using Repository.Entities;
 using System;
 using System.Collections.Generic;
@@ -13,7 +15,13 @@ namespace RestaurantAPI.Controllers
     {
         readonly RestaurantServices rs = new();
         readonly WaiterServices ws = new();
-        readonly ClientServices cs = new();
+        private ClientServices Cs { get; }
+
+        public RestaurantController()
+        {
+            DbContextOptions options = new DbContextOptionsBuilder().UseSqlServer("Server=localhost;Database=RestaurantDB;Trusted_Connection=True;").Options;
+            Cs = new(new RestaurantDbContext(options));
+        }
 
         [HttpPost("Create a brand new restaurant with waiters and clients in it")]
         public Result CreateNewFilledRestaurant(string name, string address, string email, string phone, int waitersNumber, int clientsNumber)
@@ -42,13 +50,13 @@ namespace RestaurantAPI.Controllers
         [HttpPost("Add a brand new client to restaurant")]
         public Result AddNewClientToRestaurant(Guid restaurantID, string clientFirstName, string clientLastName)
         {
-            return cs.AddNewClientToSpecificRestaurant(restaurantID, clientFirstName, clientLastName);
+            return Cs.AddNewClientToSpecificRestaurant(restaurantID, clientFirstName, clientLastName);
         }
 
         [HttpPost("Add a brand new clients to restaurant")]
         public Result AddNewClientsToRestaurant(Guid restaurantId, int clientsNumber)
         {
-            return cs.AddNewDummyListOfClientsToSpecificRestaurant(restaurantId, clientsNumber);
+            return Cs.AddNewDummyListOfClientsToSpecificRestaurant(restaurantId, clientsNumber);
         }
 
         [HttpGet("Show all Restaurant clients")]
@@ -66,7 +74,7 @@ namespace RestaurantAPI.Controllers
         [HttpGet("Show all clients by waiter")]
         public List<Client> GetClientsByWaiters(Guid waiterId)
         {
-            return cs.ShowAllClientsBySpecificWaiter(waiterId);
+            return Cs.ShowAllClientsBySpecificWaiter(waiterId);
         }
 
         [HttpPut("Transfer the waiter to another restaurant")]
@@ -78,7 +86,7 @@ namespace RestaurantAPI.Controllers
         [HttpPut("Transfer the client to another restaurant")]
         public Result TransferClient(Guid clientId, Guid moveIntoRestaurantId)
         {
-            return cs.TransferTheClientToAnotherRestaurant(clientId, moveIntoRestaurantId);
+            return Cs.TransferTheClientToAnotherRestaurant(clientId, moveIntoRestaurantId);
         }
 
         [HttpDelete("Delete the restaurant")]
@@ -96,7 +104,7 @@ namespace RestaurantAPI.Controllers
         [HttpDelete("Delete the client")]
         public Result DeleteClient(Guid clientId)
         {
-            return cs.DeleteTheClient(clientId);
+            return Cs.DeleteTheClient(clientId);
         }
     }
 }
