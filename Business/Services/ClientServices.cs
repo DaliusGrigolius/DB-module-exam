@@ -23,7 +23,7 @@ namespace Business.Services
                 var rest = Rdbc.Restaurants.Find(restaurantID);
                 if (rest == null)
                 {
-                    return new Result(false, "Error! Restaurant not found!");
+                    return new Result(false, "Error: Restaurant not found.");
                 }
 
                 var waiters = Rdbc.Waiters.Where(i => i.RestaurantId == restaurantID).ToList();
@@ -37,7 +37,7 @@ namespace Business.Services
 
                 Rdbc.SaveChanges();
                
-                return new Result(true, "Success! New client added");
+                return new Result(true, "Success: New client added.");
             }
             catch (Exception e)
             {
@@ -54,7 +54,7 @@ namespace Business.Services
                     .FirstOrDefault(i => i.Id == clientId);
                 if (client == null)
                 {
-                    return new Result(false, "Error! Client not found!");
+                    return new Result(false, "Error: Client not found.");
                 }
 
                 client.Waiters.Clear();
@@ -65,14 +65,14 @@ namespace Business.Services
                     .FirstOrDefault(i => i.Id == moveIntoRestaurantId);
                 if (restaurant == null)
                 {
-                    return new Result(false, "Error! Restaurant not found!");
+                    return new Result(false, "Error: Restaurant not found.");
                 }
 
                 client.Waiters.AddRange(restaurant.Waiters);
                 Rdbc.Clients.Update(client);
                 Rdbc.SaveChanges();
 
-                return new Result(true, "Success! Client transfered.");
+                return new Result(true, "Success: Client transfered.");
             }
             catch(Exception e)
             {
@@ -87,13 +87,13 @@ namespace Business.Services
                 var client = Rdbc.Clients.Find(clientId);
                 if (client == null)
                 {
-                    return new Result(false, "Error! Client not found!");
+                    return new Result(false, "Error: Client not found.");
                 }
 
                 Rdbc.Clients.Remove(client);
                 Rdbc.SaveChanges();
 
-                return new Result(true, "Success! Client deleted.");
+                return new Result(true, "Success: Client deleted.");
             }
             catch (Exception e)
             {
@@ -121,7 +121,7 @@ namespace Business.Services
                     .FirstOrDefault(i => i.Id == restaurantId);
                 if (restaurant == null)
                 {
-                    return new Result(false, "Error! Restaurant not found!");
+                    return new Result(false, "Error: Restaurant not found.");
                 }
 
                 var clients = new List<Client>();
@@ -136,7 +136,7 @@ namespace Business.Services
 
                 Rdbc.SaveChanges();
 
-                return new Result(true, $"Success! Clients added.");
+                return new Result(true, $"Success: Clients added.");
             }
             catch (Exception e)
             {
