@@ -14,12 +14,6 @@ namespace Repository.DbContexts
 
         }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder builder)
-        {
-            //builder.UseSqlServer("Server=localhost;Database=RestaurantDB;Trusted_Connection=True;");
-            base.OnConfiguring(builder);
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Client>()

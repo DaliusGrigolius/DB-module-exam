@@ -11,9 +11,9 @@ namespace Business.Services
     {
         private RestaurantDbContext Rdbc { get; }
 
-        public RestaurantServices()
+        public RestaurantServices(RestaurantDbContext rdbc)
         {
-            //Rdbc = new();           
+            Rdbc = rdbc;       
         }
 
         public Result CreateRestaurantWithNewWaitersAndClients(string name, string address, string email, string phone, int waitersNumber, int clientsNumber)

@@ -26,7 +26,7 @@ namespace XUnitTests.BusinessClientServicesTests
         }
 
         [Fact]
-        public void AddNewClientToSpecificRestaurant_RestaurantDoesntExist_ReturnFalse()
+        public void AddNewClientToSpecificRestaurant_RestaurantDoesntExist_ReturnsFalse()
         {
             var actual = Cs.AddNewClientToSpecificRestaurant(new Guid(), "Daumantas", "Pavarde");
             var expected = new Result(false, "Error! Restaurant not found!");
