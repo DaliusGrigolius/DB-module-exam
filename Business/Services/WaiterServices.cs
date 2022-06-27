@@ -13,7 +13,7 @@ namespace Business.Services
 
         public WaiterServices()
         {
-            Rdbc = new RestaurantDbContext();
+            //Rdbc = new RestaurantDbContext();
         }
 
         public Result AddNewWaiterToSpecificRestaurant(Guid restaurantID, string waiterFirstName, string waiterLastName, string waiterGender, int waiterAge)

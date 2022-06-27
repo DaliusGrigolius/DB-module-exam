@@ -13,7 +13,7 @@ namespace Business.Services
 
         public RestaurantServices()
         {
-            Rdbc = new();           
+            //Rdbc = new();           
         }
 
         public Result CreateRestaurantWithNewWaitersAndClients(string name, string address, string email, string phone, int waitersNumber, int clientsNumber)

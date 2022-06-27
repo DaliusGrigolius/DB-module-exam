@@ -9,9 +9,15 @@ namespace Repository.DbContexts
         public DbSet<Client> Clients { get; set; }
         public DbSet<Waiter> Waiters { get; set; }
 
+        public RestaurantDbContext(DbContextOptions options) : base(options)
+        {
+
+        }
+
         protected override void OnConfiguring(DbContextOptionsBuilder builder)
         {
-            builder.UseSqlServer("Server=localhost;Database=RestaurantDB;Trusted_Connection=True;");
+            //builder.UseSqlServer("Server=localhost;Database=RestaurantDB;Trusted_Connection=True;");
+            base.OnConfiguring(builder);
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
