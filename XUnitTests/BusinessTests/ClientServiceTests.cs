@@ -39,13 +39,13 @@ namespace XUnitTests.BusinessClientServicesTests
             var rest = new Restaurant("a", "b", "c", "d");
             Rdbc.Add(rest);
             Rdbc.SaveChanges();
+
             var actual = Cs.AddNewClientToSpecificRestaurant(rest.Id, "name", "surname");
             var expected = new Result(true, "Success: New client added.");
-
             var comparisonResult = new CompareLogic().Compare(expected, actual);
 
             Assert.True(comparisonResult.AreEqual);
-            Assert.True(rest.Clients.Count > 0);
+            Assert.True(rest.Clients.Count == 1);
         }
 
         [Fact]
@@ -61,7 +61,12 @@ namespace XUnitTests.BusinessClientServicesTests
         [Fact]
         public void TransferTheClientToAnotherRestaurant_RestaurantDoesntExist_ReturnsFalse()
         {
-            var actual = Cs.AddNewClientToSpecificRestaurant(new Guid(), "name", "surname");
+            var rest = new Restaurant("a", "b", "c", "d");
+            Rdbc.Add(rest);
+            var client = new Client("a", "b", rest.Id);
+            Rdbc.Add(client);
+            Rdbc.SaveChanges();
+            var actual = Cs.TransferTheClientToAnotherRestaurant(client.Id, new Guid());
             var expected = new Result(false, "Error: Restaurant not found.");
             var comparisonResult = new CompareLogic().Compare(expected, actual);
 
@@ -75,16 +80,16 @@ namespace XUnitTests.BusinessClientServicesTests
             var rest1 = new Restaurant("a1", "b1", "c1", "d1");
             Rdbc.Add(rest);
             Rdbc.Add(rest1);
+            Rdbc.Add(new Client("name", "surname", rest.Id));
             Rdbc.SaveChanges();
-            Cs.AddNewClientToSpecificRestaurant(rest.Id, "name", "surname");
 
             var actual = Cs.TransferTheClientToAnotherRestaurant(rest.Clients[0].Id, rest1.Id);
             var expected = new Result(true, "Success: Client transfered.");
             var comparisonResult = new CompareLogic().Compare(expected, actual);
 
             Assert.True(comparisonResult.AreEqual);
-            Assert.True(rest.Clients.Count < 1);
-            Assert.True(rest1.Clients.Count > 0);
+            Assert.True(rest.Clients.Count == 0);
+            Assert.True(rest1.Clients.Count == 1);
         }
 
         [Fact]
@@ -102,13 +107,21 @@ namespace XUnitTests.BusinessClientServicesTests
         {
             var rest = new Restaurant("a", "b", "c", "d");
             Rdbc.Add(rest);
-            Cs.AddNewClientToSpecificRestaurant(rest.Id, "name", "surname");
+            Rdbc.Add(new Client("name", "surname", rest.Id));
+            Rdbc.SaveChanges();
 
             var actual = Cs.DeleteTheClient(rest.Clients[0].Id);
             var expected = new Result(true, "Success: Client deleted.");
             var comparisonResult = new CompareLogic().Compare(expected, actual);
 
+            var clients = new List<Client>();
+            foreach (var client in rest.Clients)
+            {
+                clients.Add(client);
+            }
+
             Assert.True(comparisonResult.AreEqual);
+            Assert.True(clients.Count == 0);
         }
 
         [Fact]

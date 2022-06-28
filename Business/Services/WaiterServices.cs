@@ -131,7 +131,7 @@ namespace Business.Services
 
                 Rdbc.SaveChanges();
 
-                return new Result(true, $"Success: Waiters added.");
+                return new Result(true, "Success: Waiters added.");
             }
             catch (Exception e)
             {
