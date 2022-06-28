@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Business.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using Repository.DbContexts;
 using Repository.Entities;
 using System;
@@ -7,7 +8,7 @@ using System.Linq;
 
 namespace Business.Services
 {
-    public class ClientServices
+    public class ClientServices : IClientServices
     {
         private RestaurantDbContext Rdbc { get; }
 
@@ -36,7 +37,7 @@ namespace Business.Services
                 }
 
                 Rdbc.SaveChanges();
-               
+
                 return new Result(true, "Success: New client added.");
             }
             catch (Exception e)
@@ -74,7 +75,7 @@ namespace Business.Services
 
                 return new Result(true, "Success: Client transfered.");
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 return new Result(false, $"Error: {e.Message}");
             }
