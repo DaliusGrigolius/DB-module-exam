@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Business.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using Repository.DbContexts;
 using Repository.Entities;
 using System;
@@ -7,7 +8,7 @@ using System.Linq;
 
 namespace Business.Services
 {
-    public class WaiterServices
+    public class WaiterServices : IWaiterServices
     {
         private RestaurantDbContext Rdbc { get; }
 

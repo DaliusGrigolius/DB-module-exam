@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Business.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using Repository.DbContexts;
 using Repository.Entities;
 using System;
@@ -7,13 +8,13 @@ using System.Linq;
 
 namespace Business.Services
 {
-    public class RestaurantServices
+    public class RestaurantServices : IRestaurantServices
     {
         private RestaurantDbContext Rdbc { get; }
 
         public RestaurantServices(RestaurantDbContext rdbc)
         {
-            Rdbc = rdbc;       
+            Rdbc = rdbc;
         }
 
         public Result CreateRestaurantWithNewWaitersAndClients(string name, string address, string email, string phone, int waitersNumber, int clientsNumber)
@@ -105,7 +106,7 @@ namespace Business.Services
             List<Waiter> list = new();
             for (int i = 0; i < waitersNumber; i++)
             {
-               list.Add(new Waiter($"FirstName{i}", $"LastName{i}", "Male", 18 + i));
+                list.Add(new Waiter($"FirstName{i}", $"LastName{i}", "Male", 18 + i));
             }
             return list;
         }
