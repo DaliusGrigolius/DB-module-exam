@@ -17,7 +17,7 @@ namespace XUnitTests.BusinessClientServicesTests
 
         public ClientServiceTests()
         {
-            var dbContextOptions = new DbContextOptionsBuilder().UseInMemoryDatabase("RestaurantTestDb").Options;
+            var dbContextOptions = new DbContextOptionsBuilder().UseInMemoryDatabase("ClientTestDb").Options;
             Rdbc = new RestaurantDbContext(dbContextOptions);
             Rdbc.Database.EnsureCreated();
             Cs = new ClientServices(Rdbc);
@@ -42,9 +42,9 @@ namespace XUnitTests.BusinessClientServicesTests
             var actual = Cs.AddNewClientToSpecificRestaurant(rest.Id, "name", "surname");
             var expected = new Result(true, "Success: New client added.");
 
-            var comparisonResult1 = new CompareLogic().Compare(expected, actual);
+            var comparisonResult = new CompareLogic().Compare(expected, actual);
 
-            Assert.True(comparisonResult1.AreEqual);
+            Assert.True(comparisonResult.AreEqual);
             Assert.True(rest.Clients.Count > 0);
         }
 
