@@ -31,7 +31,7 @@ namespace Business.Services
 
                 Rdbc.SaveChanges();
 
-                return new Result(true, "Success! Restaurant created.");
+                return new Result(true, "Success: Restaurant created.");
             }
             catch (Exception e)
             {
@@ -46,7 +46,7 @@ namespace Business.Services
                 Rdbc.Add(new Restaurant(restaurantName, restaurantAddress, restaurantEmail, restaurantPhone));
                 Rdbc.SaveChanges();
 
-                return new Result(true, "Success! Restaurant created.");
+                return new Result(true, "Success: Restaurant created.");
             }
             catch (Exception e)
             {
@@ -66,13 +66,13 @@ namespace Business.Services
                     .FirstOrDefault(i => i.Id == restaurantId);
                 if (restaurant == null)
                 {
-                    return new Result(false, "Error! Restaurant not found!");
+                    return new Result(false, "Error: Restaurant not found.");
                 }
 
                 Rdbc.Remove(restaurant);
                 Rdbc.SaveChanges();
 
-                return new Result(true, "Success! Restaurant deleted.");
+                return new Result(true, "Success: Restaurant deleted.");
             }
             catch (Exception e)
             {
