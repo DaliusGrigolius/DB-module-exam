@@ -104,9 +104,11 @@ namespace Business.Services
         public List<Client> ShowAllClientsBySpecificWaiter(Guid waiterId)
         {
             var waiter = Rdbc.Waiters.Find(waiterId);
-            var clients = Rdbc.Clients.Where(i => i.RestaurantId == waiter.RestaurantId);
-
-            return clients.ToList();
+            if (waiter == null)
+            {
+                return null;
+            }
+            return Rdbc.Clients.Where(i => i.RestaurantId == waiter.RestaurantId).ToList();
         }
 
         public Result AddNewDummyListOfClientsToSpecificRestaurant(Guid restaurantId, int clientsNumber)

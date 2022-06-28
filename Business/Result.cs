@@ -1,4 +1,7 @@
-﻿namespace Business
+﻿using System;
+using System.Collections.Generic;
+
+namespace Business
 {
     public class Result
     {
