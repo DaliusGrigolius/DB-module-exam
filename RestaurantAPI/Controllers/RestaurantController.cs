@@ -1,9 +1,5 @@
 ﻿using Business.Interfaces;
-using Business.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Repository.DbContexts;
 using Repository.Entities;
 using System;
 using System.Collections.Generic;
@@ -14,20 +10,15 @@ namespace RestaurantAPI.Controllers
     [Route("[controller]")]
     public class RestaurantController : ControllerBase
     {
-        private IRestaurantServices _restaurantServices { get; }
-        private IWaiterServices _waiterServices { get; }
-        private IClientServices _clientServices { get; }
-        private readonly IConfiguration _configuration;
+        private readonly IRestaurantServices _restaurantServices;
+        private readonly IWaiterServices _waiterServices;
+        private readonly IClientServices _clientServices;
 
-        public RestaurantController(IConfiguration _config)
+        public RestaurantController(IRestaurantServices restaurantServices, IWaiterServices waiterServices, IClientServices clientServices)
         {
-            _configuration = _config;
-            string connectionString = _configuration.GetConnectionString("myDb1");
-            DbContextOptions options = new DbContextOptionsBuilder().UseSqlServer(connectionString).Options;
-            var restaurantDbContext = new RestaurantDbContext(options);
-            _restaurantServices = new RestaurantServices(restaurantDbContext);
-            _waiterServices = new WaiterServices(restaurantDbContext);
-            _clientServices = new ClientServices(restaurantDbContext);
+            _restaurantServices = restaurantServices;
+            _waiterServices = waiterServices;
+            _clientServices = clientServices;
         }
 
         [HttpPost("Create a brand new restaurant with waiters and clients in it")]

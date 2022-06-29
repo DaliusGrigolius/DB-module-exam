@@ -1,7 +1,9 @@
-﻿using Business;
+﻿using Business.Interfaces;
 using Business.Services;
 using KellermanSoftware.CompareNetObjects;
 using Microsoft.EntityFrameworkCore;
+using Moq;
+using Repository.DbConfigs;
 using Repository.DbContexts;
 using Repository.Entities;
 using System;
@@ -12,21 +14,26 @@ namespace XUnitTests.BusinessClientServicesTests
 {
     public class ClientServiceTests : IDisposable
     {
-        private ClientServices Cs { get; }
         private RestaurantDbContext Rdbc { get; set; }
+        private readonly IClientServices _clientServices;
+        private Mock<IDbConfigurations> dbConfigurationsMock;
+
 
         public ClientServiceTests()
         {
             var dbContextOptions = new DbContextOptionsBuilder().UseInMemoryDatabase("ClientTestDb").Options;
-            Rdbc = new RestaurantDbContext(dbContextOptions);
+            dbConfigurationsMock = new Mock<IDbConfigurations>();
+            dbConfigurationsMock.Setup(i => i.ConnectionString).Returns("ClientTestDb");
+            dbConfigurationsMock.Setup(i => i.Options).Returns(dbContextOptions);
+            Rdbc = new RestaurantDbContext(dbConfigurationsMock.Object);
+            _clientServices = new ClientServices(Rdbc);
             Rdbc.Database.EnsureCreated();
-            Cs = new ClientServices(Rdbc);
         }
 
         [Fact]
         public void AddNewClientToSpecificRestaurant_RestaurantDoesntExist_ReturnsFalse()
         {
-            var actual = Cs.AddNewClientToSpecificRestaurant(new Guid(), "name", "surname");
+            var actual = _clientServices.AddNewClientToSpecificRestaurant(new Guid(), "name", "surname");
             var expected = new Result(false, "Error: Restaurant not found.");
             var comparisonResult = new CompareLogic().Compare(expected, actual);
 
@@ -40,7 +47,7 @@ namespace XUnitTests.BusinessClientServicesTests
             Rdbc.Add(rest);
             Rdbc.SaveChanges();
 
-            var actual = Cs.AddNewClientToSpecificRestaurant(rest.Id, "name", "surname");
+            var actual = _clientServices.AddNewClientToSpecificRestaurant(rest.Id, "name", "surname");
             var expected = new Result(true, "Success: New client added.");
             var comparisonResult = new CompareLogic().Compare(expected, actual);
 
@@ -51,7 +58,7 @@ namespace XUnitTests.BusinessClientServicesTests
         [Fact]
         public void TransferTheClientToAnotherRestaurant_ClientDoesntExist_ReturnsFalse()
         {
-            var actual = Cs.TransferTheClientToAnotherRestaurant(new Guid(), new Guid());
+            var actual = _clientServices.TransferTheClientToAnotherRestaurant(new Guid(), new Guid());
             var expected = new Result(false, "Error: Client not found.");
             var comparisonResult = new CompareLogic().Compare(expected, actual);
 
@@ -66,7 +73,7 @@ namespace XUnitTests.BusinessClientServicesTests
             var client = new Client("a", "b", rest.Id);
             Rdbc.Add(client);
             Rdbc.SaveChanges();
-            var actual = Cs.TransferTheClientToAnotherRestaurant(client.Id, new Guid());
+            var actual = _clientServices.TransferTheClientToAnotherRestaurant(client.Id, new Guid());
             var expected = new Result(false, "Error: Restaurant not found.");
             var comparisonResult = new CompareLogic().Compare(expected, actual);
 
@@ -83,7 +90,7 @@ namespace XUnitTests.BusinessClientServicesTests
             Rdbc.Add(new Client("name", "surname", rest.Id));
             Rdbc.SaveChanges();
 
-            var actual = Cs.TransferTheClientToAnotherRestaurant(rest.Clients[0].Id, rest1.Id);
+            var actual = _clientServices.TransferTheClientToAnotherRestaurant(rest.Clients[0].Id, rest1.Id);
             var expected = new Result(true, "Success: Client transfered.");
             var comparisonResult = new CompareLogic().Compare(expected, actual);
 
@@ -95,7 +102,7 @@ namespace XUnitTests.BusinessClientServicesTests
         [Fact]
         public void DeleteTheClient_ClientDoesntExist_ReturnsFalse()
         {
-            var actual = Cs.DeleteTheClient(new Guid());
+            var actual = _clientServices.DeleteTheClient(new Guid());
             var expected = new Result(false, "Error: Client not found.");
             var comparisonResult = new CompareLogic().Compare(expected, actual);
 
@@ -110,7 +117,7 @@ namespace XUnitTests.BusinessClientServicesTests
             Rdbc.Add(new Client("name", "surname", rest.Id));
             Rdbc.SaveChanges();
 
-            var actual = Cs.DeleteTheClient(rest.Clients[0].Id);
+            var actual = _clientServices.DeleteTheClient(rest.Clients[0].Id);
             var expected = new Result(true, "Success: Client deleted.");
             var comparisonResult = new CompareLogic().Compare(expected, actual);
 
@@ -127,7 +134,7 @@ namespace XUnitTests.BusinessClientServicesTests
         [Fact]
         public void ShowAllClientsBySpecificWaiter_WaiterDoesntExist_ReturnsNull()
         {
-            var actual = Cs.ShowAllClientsBySpecificWaiter(new Guid());
+            var actual = _clientServices.ShowAllClientsBySpecificWaiter(new Guid());
             List<Client> expected = null;
 
             Assert.Equal(expected, actual);
@@ -148,7 +155,7 @@ namespace XUnitTests.BusinessClientServicesTests
             Rdbc.Add(rest);
             Rdbc.SaveChanges();
 
-            var actual = Cs.ShowAllClientsBySpecificWaiter(newWaiter.Id);
+            var actual = _clientServices.ShowAllClientsBySpecificWaiter(newWaiter.Id);
             var expected = new List<Client>();
             expected.Add(newClient);
             var comparisonResult = new CompareLogic().Compare(expected, actual);
@@ -159,7 +166,7 @@ namespace XUnitTests.BusinessClientServicesTests
         [Fact]
         public void AddNewDummyListOfClientsToSpecificRestaurant_RestaurantDoesntExist_ReturnsFalse()
         {
-            var actual = Cs.AddNewDummyListOfClientsToSpecificRestaurant(new Guid(), 5);
+            var actual = _clientServices.AddNewDummyListOfClientsToSpecificRestaurant(new Guid(), 5);
             var expected = new Result(false, "Error: Restaurant not found.");
             var comparisonResult = new CompareLogic().Compare(expected, actual);
 
@@ -173,7 +180,7 @@ namespace XUnitTests.BusinessClientServicesTests
             Rdbc.Add(rest);
             Rdbc.SaveChanges();
 
-            var actual = Cs.AddNewDummyListOfClientsToSpecificRestaurant(rest.Id, 5);
+            var actual = _clientServices.AddNewDummyListOfClientsToSpecificRestaurant(rest.Id, 5);
             var expected = new Result(true, $"Success: Clients added.");
             var comparisonResult = new CompareLogic().Compare(expected, actual);
 
