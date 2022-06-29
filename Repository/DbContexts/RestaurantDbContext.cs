@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Repository.DbConfigs;
 using Repository.Entities;
 
 namespace Repository.DbContexts
@@ -9,7 +10,7 @@ namespace Repository.DbContexts
         public DbSet<Client> Clients { get; set; }
         public DbSet<Waiter> Waiters { get; set; }
 
-        public RestaurantDbContext(DbContextOptions options) : base(options)
+        public RestaurantDbContext(IDbConfigurations options) : base(options.Options)
         {
 
         }

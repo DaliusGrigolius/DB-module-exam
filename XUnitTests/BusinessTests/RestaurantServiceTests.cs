@@ -2,6 +2,8 @@
 using Business.Services;
 using KellermanSoftware.CompareNetObjects;
 using Microsoft.EntityFrameworkCore;
+using Moq;
+using Repository.DbConfigs;
 using Repository.DbContexts;
 using Repository.Entities;
 using System;
@@ -15,13 +17,17 @@ namespace XUnitTests.BusinessTests
     {
         private RestaurantServices Rs { get; }
         private RestaurantDbContext Rdbc { get; set; }
+        private Mock<IDbConfigurations> dbConfigurationsMock;
 
         public RestaurantServiceTests()
         {
             var dbContextOptions = new DbContextOptionsBuilder().UseInMemoryDatabase("RestaurantTestDb").Options;
-            Rdbc = new RestaurantDbContext(dbContextOptions);
-            Rdbc.Database.EnsureCreated();
+            dbConfigurationsMock = new Mock<IDbConfigurations>();
+            dbConfigurationsMock.Setup(i => i.ConnectionString).Returns("RestaurantTestDb");
+            dbConfigurationsMock.Setup(i => i.Options).Returns(dbContextOptions);
+            Rdbc = new RestaurantDbContext(dbConfigurationsMock.Object);
             Rs = new RestaurantServices(Rdbc);
+            Rdbc.Database.EnsureCreated();
         }
 
         [Fact]
