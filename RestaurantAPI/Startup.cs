@@ -29,7 +29,7 @@ namespace RestaurantAPI
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "RestaurantAPI", Version = "v1" });
             });
-            services.AddSingleton<IConfiguration>(Configuration);//-----------------------
+            services.AddSingleton<IConfiguration>(Configuration);
             services.AddScoped<IClientServices, ClientServices>();
             services.AddScoped<IRestaurantServices, RestaurantServices>();
             services.AddScoped<IWaiterServices, WaiterServices>();
