@@ -1,11 +1,11 @@
 using Business.Interfaces;
 using Moq;
-using Repository.DbConfigs;
 using Repository.Entities;
 using RestaurantAPI.Controllers;
+using System;
 using Xunit;
 
-namespace MoqTests
+namespace XUnitTests.MoqBusinessTests
 {
     public class ClientServicesTests
     {
@@ -28,6 +28,21 @@ namespace MoqTests
         {
             //Arrange
             var restultObj = new Result(false, "Error: Restaurant not found.");
+            clientServicesMock.Setup(i => i.AddNewClientToSpecificRestaurant(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>())).Returns(restultObj);
+
+            //Act
+            var result = controller.AddNewClientToRestaurant(It.IsAny<Guid>(), "a", "b");
+
+            // Assert
+            clientServicesMock.Verify(s => s.AddNewClientToSpecificRestaurant(It.IsAny<Guid>(), "a", "b"), Times.Once());
+            Assert.Equal(restultObj, result);
+        }
+
+        [Fact]
+        public void AddNewClientToSpecificRestaurant_AddsData_ReturnsTrue()
+        {
+            //Arrange
+            var restultObj = new Result(true, "Success: New client added.");
             clientServicesMock.Setup(i => i.AddNewClientToSpecificRestaurant(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>())).Returns(restultObj);
 
             //Act
