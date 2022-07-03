@@ -16,10 +16,10 @@ namespace Repository.Entities
         public string Gender { get; set; }
         [Required]
         public int Age { get; set; }
-        public List<Client> Clients { get; set; }
+        public virtual List<Client> Clients { get; set; }
         [ForeignKey("Restaurant")]
         public Guid RestaurantId { get; set; }
-        public Restaurant Restaurant { get; set; }
+        public virtual Restaurant Restaurant { get; set; }
 
         public Waiter(string firstName, string lastName, string gender, int age)
         {

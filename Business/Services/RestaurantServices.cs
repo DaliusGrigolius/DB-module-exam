@@ -10,11 +10,11 @@ namespace Business.Services
 {
     public class RestaurantServices : IRestaurantServices
     {
-        private RestaurantDbContext Rdbc { get; }
+        private RestaurantDbContext _context { get; }
 
-        public RestaurantServices(RestaurantDbContext rdbc)
+        public RestaurantServices(RestaurantDbContext context)
         {
-            Rdbc = rdbc;
+            _context = context;
         }
 
         public Result CreateRestaurantWithNewWaitersAndClients(string name, string address, string email, string phone, int waitersNumber, int clientsNumber)
@@ -28,9 +28,9 @@ namespace Business.Services
                 AssignClientsToWaiters(newClients, newWaiters);
                 newRestaurant.Waiters.AddRange(newWaiters);
                 newRestaurant.Clients.AddRange(newClients);
-                Rdbc.Add(newRestaurant);
+                _context.Add(newRestaurant);
 
-                Rdbc.SaveChanges();
+                _context.SaveChanges();
 
                 return new Result(true, "Success: Restaurant created.");
             }
@@ -44,8 +44,8 @@ namespace Business.Services
         {
             try
             {
-                Rdbc.Add(new Restaurant(restaurantName, restaurantAddress, restaurantEmail, restaurantPhone));
-                Rdbc.SaveChanges();
+                _context.Add(new Restaurant(restaurantName, restaurantAddress, restaurantEmail, restaurantPhone));
+                _context.SaveChanges();
 
                 return new Result(true, "Success: Restaurant created.");
             }
@@ -59,7 +59,7 @@ namespace Business.Services
         {
             try
             {
-                var restaurant = Rdbc.Restaurants
+                var restaurant = _context.Restaurants
                     .Include(i => i.Waiters)
                     .ThenInclude(i => i.Clients)
                     .Include(i => i.Clients)
@@ -70,8 +70,8 @@ namespace Business.Services
                     return new Result(false, "Error: Restaurant not found.");
                 }
 
-                Rdbc.Remove(restaurant);
-                Rdbc.SaveChanges();
+                _context.Remove(restaurant);
+                _context.SaveChanges();
 
                 return new Result(true, "Success: Restaurant deleted.");
             }
@@ -83,39 +83,74 @@ namespace Business.Services
 
         public List<Client> ShowAllSpecificRestaurantClients(Guid restaurantId)
         {
-            return Rdbc.Clients.Where(i => i.RestaurantId == restaurantId).ToList();
+            try
+            {
+                return _context.Clients.Where(i => i.RestaurantId == restaurantId).ToList();
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
         }
 
         public List<Waiter> ShowAllSpecificRestaurantWaiters(Guid restaurantId)
         {
-            return Rdbc.Waiters.Where(i => i.RestaurantId == restaurantId).ToList();
+            try
+            {
+                return _context.Waiters.Where(i => i.RestaurantId == restaurantId).ToList();
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
         }
 
         private List<Client> CreateClients(int clientsNumber, Guid restaurantId)
         {
-            List<Client> list = new();
-            for (int i = 0; i < clientsNumber; i++)
+            try
             {
-                list.Add(new Client($"FirstName{i}", $"LastName{i}", restaurantId));
+                List<Client> list = new();
+                for (int i = 0; i < clientsNumber; i++)
+                {
+                    list.Add(new Client($"FirstName{i}", $"LastName{i}", restaurantId));
+                }
+                return list;
             }
-            return list;
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
         }
 
         private List<Waiter> CreateWaiters(int waitersNumber)
         {
-            List<Waiter> list = new();
-            for (int i = 0; i < waitersNumber; i++)
+            try
             {
-                list.Add(new Waiter($"FirstName{i}", $"LastName{i}", "Male", 18 + i));
+                List<Waiter> list = new();
+                for (int i = 0; i < waitersNumber; i++)
+                {
+                    list.Add(new Waiter($"FirstName{i}", $"LastName{i}", "Male", 18 + i));
+                }
+                return list;
             }
-            return list;
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
         }
 
         private void AssignClientsToWaiters(List<Client> clients, List<Waiter> waiters)
         {
-            for (int i = 0; i < waiters.Count; i++)
+            try
             {
-                waiters[i].Clients.AddRange(clients);
+                for (int i = 0; i < waiters.Count; i++)
+                {
+                    waiters[i].Clients.AddRange(clients);
+                }
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
             }
         }
     }

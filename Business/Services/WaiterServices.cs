@@ -10,26 +10,26 @@ namespace Business.Services
 {
     public class WaiterServices : IWaiterServices
     {
-        private RestaurantDbContext Rdbc { get; }
+        private RestaurantDbContext _context { get; }
 
-        public WaiterServices(RestaurantDbContext rdbc)
+        public WaiterServices(RestaurantDbContext context)
         {
-            Rdbc = rdbc;
+            _context = context;
         }
 
         public Result AddNewWaiterToSpecificRestaurant(Guid restaurantID, string waiterFirstName, string waiterLastName, string waiterGender, int waiterAge)
         {
             try
             {
-                var restaurant = Rdbc.Restaurants.Find(restaurantID);
+                var restaurant = _context.Restaurants.Find(restaurantID);
                 if (restaurant == null)
                 {
                     return new Result(false, "Error: Restaurant not found.");
                 }
 
-                var clients = Rdbc.Clients.Where(i => i.RestaurantId == restaurantID).ToList();
+                var clients = _context.Clients.Where(i => i.RestaurantId == restaurantID).ToList();
                 var newWaiter = new Waiter(waiterFirstName, waiterLastName, waiterGender, waiterAge);
-                Rdbc.Add(newWaiter);
+                _context.Add(newWaiter);
                 restaurant.Waiters.Add(newWaiter);
 
                 foreach (var client in clients)
@@ -37,7 +37,7 @@ namespace Business.Services
                     client.Waiters.Add(newWaiter);
                 }
 
-                Rdbc.SaveChanges();
+                _context.SaveChanges();
 
                 return new Result(true, "Success: New waiter added.");
             }
@@ -51,7 +51,7 @@ namespace Business.Services
         {
             try
             {
-                var waiter = Rdbc.Waiters
+                var waiter = _context.Waiters
                     .Include(i => i.Clients)
                     .FirstOrDefault(i => i.Id == waiterId);
                 if (waiter == null)
@@ -59,7 +59,7 @@ namespace Business.Services
                     return new Result(false, "Error: Waiter not found.");
                 }
 
-                var restaurant = Rdbc.Restaurants
+                var restaurant = _context.Restaurants
                     .Include(i => i.Clients)
                     .FirstOrDefault(i => i.Id == moveIntoRestaurantId);
                 if (restaurant == null)
@@ -72,8 +72,8 @@ namespace Business.Services
 
 
                 waiter.Clients.AddRange(restaurant.Clients);
-                Rdbc.Waiters.Update(waiter);
-                Rdbc.SaveChanges();
+                _context.Waiters.Update(waiter);
+                _context.SaveChanges();
 
                 return new Result(true, "Success: Waiter transfered.");
             }
@@ -87,14 +87,14 @@ namespace Business.Services
         {
             try
             {
-                var waiter = Rdbc.Waiters.Find(waiterId);
+                var waiter = _context.Waiters.Find(waiterId);
                 if (waiter == null)
                 {
                     return new Result(false, "Error: Waiter not found.");
                 }
 
-                Rdbc.Waiters.Remove(waiter);
-                Rdbc.SaveChanges();
+                _context.Waiters.Remove(waiter);
+                _context.SaveChanges();
 
                 return new Result(true, "Success: Waiter deleted.");
             }
@@ -108,7 +108,7 @@ namespace Business.Services
         {
             try
             {
-                var restaurant = Rdbc.Restaurants
+                var restaurant = _context.Restaurants
                     .Include(i => i.Waiters)
                     .ThenInclude(i => i.Clients)
                     .Include(i => i.Clients)
@@ -127,10 +127,10 @@ namespace Business.Services
 
                 waiters.ForEach(i => i.RestaurantId = restaurantId);
                 waiters.ForEach(i => i.Clients.AddRange(restaurant.Clients));
-                Rdbc.Waiters.AddRange(waiters);
+                _context.Waiters.AddRange(waiters);
                 restaurant.Clients.ForEach(i => i.Waiters.AddRange(waiters));
 
-                Rdbc.SaveChanges();
+                _context.SaveChanges();
 
                 return new Result(true, "Success: Waiters added.");
             }

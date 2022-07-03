@@ -9,18 +9,17 @@ namespace XUnitTests.MoqBusinessTests
 {
     public class ClientServicesTests
     {
-        private readonly RestaurantController controller;
-        private Mock<IRestaurantServices> restaurantServicesMock;
-        private Mock<IWaiterServices> waiterServicesMock;
-        private Mock<IClientServices> clientServicesMock;
+        private RestaurantController Controller { get; }
+        private Mock<IRestaurantServices> _restaurantServicesMock { get; }
+        private Mock<IWaiterServices> _waiterServicesMock { get; }
+        private Mock<IClientServices> _clientServicesMock { get; }
 
         public ClientServicesTests()
         {
-            restaurantServicesMock = new Mock<IRestaurantServices>();
-            waiterServicesMock = new Mock<IWaiterServices>();
-            clientServicesMock = new Mock<IClientServices>();
-
-            controller = new RestaurantController(restaurantServicesMock.Object, waiterServicesMock.Object, clientServicesMock.Object);
+            _restaurantServicesMock = new Mock<IRestaurantServices>();
+            _waiterServicesMock = new Mock<IWaiterServices>();
+            _clientServicesMock = new Mock<IClientServices>();
+            Controller = new RestaurantController(_restaurantServicesMock.Object, _waiterServicesMock.Object, _clientServicesMock.Object);
         }
 
         [Fact]
@@ -28,28 +27,13 @@ namespace XUnitTests.MoqBusinessTests
         {
             //Arrange
             var restultObj = new Result(false, "Error: Restaurant not found.");
-            clientServicesMock.Setup(i => i.AddNewClientToSpecificRestaurant(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>())).Returns(restultObj);
+            _clientServicesMock.Setup(i => i.AddNewClientToSpecificRestaurant(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>())).Returns(restultObj);
 
             //Act
-            var result = controller.AddNewClientToRestaurant(It.IsAny<Guid>(), "a", "b");
+            var result = Controller.AddNewClientToRestaurant(It.IsAny<Guid>(), "a", "b");
 
             // Assert
-            clientServicesMock.Verify(s => s.AddNewClientToSpecificRestaurant(It.IsAny<Guid>(), "a", "b"), Times.Once());
-            Assert.Equal(restultObj, result);
-        }
-
-        [Fact]
-        public void AddNewClientToSpecificRestaurant_AddsData_ReturnsTrue()
-        {
-            //Arrange
-            var restultObj = new Result(true, "Success: New client added.");
-            clientServicesMock.Setup(i => i.AddNewClientToSpecificRestaurant(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>())).Returns(restultObj);
-
-            //Act
-            var result = controller.AddNewClientToRestaurant(It.IsAny<Guid>(), "a", "b");
-
-            // Assert
-            clientServicesMock.Verify(s => s.AddNewClientToSpecificRestaurant(It.IsAny<Guid>(), "a", "b"), Times.Once());
+            _clientServicesMock.Verify(s => s.AddNewClientToSpecificRestaurant(It.IsAny<Guid>(), "a", "b"), Times.Once());
             Assert.Equal(restultObj, result);
         }
     }

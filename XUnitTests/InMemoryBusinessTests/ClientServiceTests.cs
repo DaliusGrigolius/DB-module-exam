@@ -14,20 +14,20 @@ namespace XUnitTests.BusinessClientServicesTests
 {
     public class ClientServiceTests : IDisposable
     {
-        private RestaurantDbContext RestaurantDbContext { get; set; }
-        private readonly IClientServices _clientServices;
-        private readonly Mock<IDbConfigurations> DbConfigurationsMock;
+        private RestaurantDbContext Context { get; }
+        private IClientServices _clientServices { get; }
+        private Mock<IDbConfigurations> _dbConfigurationsMock { get; }
 
 
         public ClientServiceTests()
         {
             var dbContextOptions = new DbContextOptionsBuilder().UseInMemoryDatabase("ClientTestDb").Options;
-            DbConfigurationsMock = new Mock<IDbConfigurations>();
-            DbConfigurationsMock.Setup(i => i.ConnectionString).Returns("ClientTestDb");
-            DbConfigurationsMock.Setup(i => i.Options).Returns(dbContextOptions);
-            RestaurantDbContext = new RestaurantDbContext(DbConfigurationsMock.Object);
-            _clientServices = new ClientServices(RestaurantDbContext);
-            RestaurantDbContext.Database.EnsureCreated();
+            _dbConfigurationsMock = new Mock<IDbConfigurations>();
+            _dbConfigurationsMock.Setup(i => i.ConnectionString).Returns("ClientTestDb");
+            _dbConfigurationsMock.Setup(i => i.Options).Returns(dbContextOptions);
+            Context = new RestaurantDbContext(_dbConfigurationsMock.Object);
+            _clientServices = new ClientServices(Context);
+            Context.Database.EnsureCreated();
         }
 
         [Fact]
@@ -44,8 +44,8 @@ namespace XUnitTests.BusinessClientServicesTests
         public void AddNewClientToSpecificRestaurant_AddsData_ReturnsTrue()
         {
             var restaurant = new Restaurant("a", "b", "c", "d");
-            RestaurantDbContext.Add(restaurant);
-            RestaurantDbContext.SaveChanges();
+            Context.Add(restaurant);
+            Context.SaveChanges();
 
             var actual = _clientServices.AddNewClientToSpecificRestaurant(restaurant.Id, "name", "surname");
             var expected = new Result(true, "Success: New client added.");
@@ -69,10 +69,10 @@ namespace XUnitTests.BusinessClientServicesTests
         public void TransferTheClientToAnotherRestaurant_RestaurantDoesntExist_ReturnsFalse()
         {
             var restaurant = new Restaurant("a", "b", "c", "d");
-            RestaurantDbContext.Add(restaurant);
+            Context.Add(restaurant);
             var client = new Client("a", "b", restaurant.Id);
-            RestaurantDbContext.Add(client);
-            RestaurantDbContext.SaveChanges();
+            Context.Add(client);
+            Context.SaveChanges();
             var actual = _clientServices.TransferTheClientToAnotherRestaurant(client.Id, new Guid());
             var expected = new Result(false, "Error: Restaurant not found.");
             var comparisonResult = new CompareLogic().Compare(expected, actual);
@@ -85,10 +85,10 @@ namespace XUnitTests.BusinessClientServicesTests
         {
             var restaurant = new Restaurant("a", "b", "c", "d");
             var otherRestaurant = new Restaurant("a1", "b1", "c1", "d1");
-            RestaurantDbContext.Add(restaurant);
-            RestaurantDbContext.Add(otherRestaurant);
-            RestaurantDbContext.Add(new Client("name", "surname", restaurant.Id));
-            RestaurantDbContext.SaveChanges();
+            Context.Add(restaurant);
+            Context.Add(otherRestaurant);
+            Context.Add(new Client("name", "surname", restaurant.Id));
+            Context.SaveChanges();
 
             var actual = _clientServices.TransferTheClientToAnotherRestaurant(restaurant.Clients[0].Id, otherRestaurant.Id);
             var expected = new Result(true, "Success: Client transfered.");
@@ -113,9 +113,9 @@ namespace XUnitTests.BusinessClientServicesTests
         public void DeleteTheClient_RemovesClient_ReturnsTrue()
         {
             var restaurant = new Restaurant("a", "b", "c", "d");
-            RestaurantDbContext.Add(restaurant);
-            RestaurantDbContext.Add(new Client("name", "surname", restaurant.Id));
-            RestaurantDbContext.SaveChanges();
+            Context.Add(restaurant);
+            Context.Add(new Client("name", "surname", restaurant.Id));
+            Context.SaveChanges();
 
             var actual = _clientServices.DeleteTheClient(restaurant.Clients[0].Id);
             var expected = new Result(true, "Success: Client deleted.");
@@ -147,13 +147,13 @@ namespace XUnitTests.BusinessClientServicesTests
             var newWaiter = new Waiter("a", "b", "c", 20);
             restaurant.Waiters.Add(newWaiter);
             var newClient = new Client("a", "b", restaurant.Id);
-            RestaurantDbContext.Clients.Add(newClient);
+            Context.Clients.Add(newClient);
             foreach (var waiter in restaurant.Waiters)
             {
                 waiter.Clients.Add(newClient);
             }
-            RestaurantDbContext.Add(restaurant);
-            RestaurantDbContext.SaveChanges();
+            Context.Add(restaurant);
+            Context.SaveChanges();
 
             var actual = _clientServices.ShowAllClientsBySpecificWaiter(newWaiter.Id);
             var expected = new List<Client>();
@@ -177,8 +177,8 @@ namespace XUnitTests.BusinessClientServicesTests
         public void AddNewDummyListOfClientsToSpecificRestaurant_AddsData_ReturnsTrue()
         {
             var restaurant = new Restaurant("a", "b", "c", "d");
-            RestaurantDbContext.Add(restaurant);
-            RestaurantDbContext.SaveChanges();
+            Context.Add(restaurant);
+            Context.SaveChanges();
 
             var actual = _clientServices.AddNewDummyListOfClientsToSpecificRestaurant(restaurant.Id, 5);
             var expected = new Result(true, $"Success: Clients added.");
@@ -190,7 +190,7 @@ namespace XUnitTests.BusinessClientServicesTests
 
         public void Dispose()
         {
-            RestaurantDbContext.Database.EnsureDeleted();
+            Context.Database.EnsureDeleted();
         }
     }
 }

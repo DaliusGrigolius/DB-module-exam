@@ -13,10 +13,15 @@ namespace Repository.Entities
         public string LastName { get; set; }
         public string PhoneNumber { get; set; }
         public string Email { get; set; }
-        public List<Waiter> Waiters { get; set; }
+        public virtual List<Waiter> Waiters { get; set; }
         [Required]
         public Guid RestaurantId { get; set; }
-        public Restaurant Restaurant { get; set; }
+        public virtual Restaurant Restaurant { get; set; }
+
+        public Client()
+        {
+
+        }
 
         public Client(string firstName, string lastName, Guid restaurantId)
         {
