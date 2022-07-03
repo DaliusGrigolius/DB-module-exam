@@ -1,4 +1,4 @@
-﻿using Business;
+﻿using Business.Interfaces;
 using Business.Services;
 using KellermanSoftware.CompareNetObjects;
 using Microsoft.EntityFrameworkCore;
@@ -12,33 +12,33 @@ using Xunit;
 
 namespace XUnitTests.BusinessTests
 {
-    
+
     public class RestaurantServiceTests : IDisposable
     {
-        private RestaurantServices RestaurantServices { get; }
-        private RestaurantDbContext RestaurantDbContext { get; set; }
-        private readonly Mock<IDbConfigurations> DbConfigurationsMock;
+        private RestaurantDbContext Context { get; set; }
+        private IRestaurantServices _restaurantServices { get; }
+        private Mock<IDbConfigurations> _dbConfigurationsMock { get; }
 
         public RestaurantServiceTests()
         {
             var dbContextOptions = new DbContextOptionsBuilder().UseInMemoryDatabase("RestaurantTestDb").Options;
-            DbConfigurationsMock = new Mock<IDbConfigurations>();
-            DbConfigurationsMock.Setup(i => i.ConnectionString).Returns("RestaurantTestDb");
-            DbConfigurationsMock.Setup(i => i.Options).Returns(dbContextOptions);
-            RestaurantDbContext = new RestaurantDbContext(DbConfigurationsMock.Object);
-            RestaurantServices = new RestaurantServices(RestaurantDbContext);
-            RestaurantDbContext.Database.EnsureCreated();
+            _dbConfigurationsMock = new Mock<IDbConfigurations>();
+            _dbConfigurationsMock.Setup(i => i.ConnectionString).Returns("RestaurantTestDb");
+            _dbConfigurationsMock.Setup(i => i.Options).Returns(dbContextOptions);
+            Context = new RestaurantDbContext(_dbConfigurationsMock.Object);
+            _restaurantServices = new RestaurantServices(Context);
+            Context.Database.EnsureCreated();
         }
 
         [Fact]
         public void CreateEmptyRestaurant_AddsData_ReturnsTrue()
         {
-            var actual = RestaurantServices.CreateEmptyRestaurant("a", "b", "c", "d");
+            var actual = _restaurantServices.CreateEmptyRestaurant("a", "b", "c", "d");
             var expected = new Result(true, "Success: Restaurant created.");
             var comparisonResult = new CompareLogic().Compare(expected, actual);
 
             var restaurantsList = new List<Restaurant>();
-            foreach (var rest in RestaurantDbContext.Restaurants)
+            foreach (var rest in Context.Restaurants)
             {
                 restaurantsList.Add(rest);
             }
@@ -50,22 +50,22 @@ namespace XUnitTests.BusinessTests
         [Fact]
         public void CreateRestaurantWithNewWaitersAndClients_AddsData_ReturnsTrue()
         {
-            var actual = RestaurantServices.CreateRestaurantWithNewWaitersAndClients("a", "b", "c", "d", 5, 5);
+            var actual = _restaurantServices.CreateRestaurantWithNewWaitersAndClients("a", "b", "c", "d", 5, 5);
             var expected = new Result(true, "Success: Restaurant created.");
             var comparisonResult = new CompareLogic().Compare(expected, actual);
 
             var restaurantsList = new List<Restaurant>();
-            foreach (var restaurant in RestaurantDbContext.Restaurants)
+            foreach (var restaurant in Context.Restaurants)
             {
                 restaurantsList.Add(restaurant);
             }
             var waitersList = new List<Waiter>();
-            foreach (var waiter in RestaurantDbContext.Waiters)
+            foreach (var waiter in Context.Waiters)
             {
                 waitersList.Add(waiter);
             }
             var clientsList = new List<Client>();
-            foreach (var client in RestaurantDbContext.Clients)
+            foreach (var client in Context.Clients)
             {
                 clientsList.Add(client);
             }
@@ -79,7 +79,7 @@ namespace XUnitTests.BusinessTests
         [Fact]
         public void DeleteRestaurant_RestaurantDoesntExist_ReturnsFalse()
         {
-            var actual = RestaurantServices.DeleteRestaurant(new Guid());
+            var actual = _restaurantServices.DeleteRestaurant(new Guid());
             var expected = new Result(false, "Error: Restaurant not found.");
             var comparisonResult = new CompareLogic().Compare(expected, actual);
 
@@ -90,10 +90,10 @@ namespace XUnitTests.BusinessTests
         public void DeleteRestaurant_RemovesData_ReturnsTrue()
         {
             var restaurant = new Restaurant("a", "b", "c", "d");
-            RestaurantDbContext.Add(restaurant);
-            RestaurantDbContext.SaveChanges();
+            Context.Add(restaurant);
+            Context.SaveChanges();
 
-            var actual = RestaurantServices.DeleteRestaurant(restaurant.Id);
+            var actual = _restaurantServices.DeleteRestaurant(restaurant.Id);
             var expected = new Result(true, "Success: Restaurant deleted.");
             var comparisonResult = new CompareLogic().Compare(expected, actual);
 
@@ -104,17 +104,17 @@ namespace XUnitTests.BusinessTests
         public void ShowAllSpecificRestaurantClients_HasData_ReturnsTrue()
         {
             var restaurant = new Restaurant("a", "b", "c", "d");
-            RestaurantDbContext.Add(restaurant);
+            Context.Add(restaurant);
             var clientList = new List<Client>
             {
                 new Client("a", "b", restaurant.Id),
                 new Client("c", "d", restaurant.Id),
                 new Client("e", "f", restaurant.Id),
             };
-            RestaurantDbContext.AddRange(clientList);
-            RestaurantDbContext.SaveChanges();
+            Context.AddRange(clientList);
+            Context.SaveChanges();
 
-            var actual = RestaurantServices.ShowAllSpecificRestaurantClients(restaurant.Id);
+            var actual = _restaurantServices.ShowAllSpecificRestaurantClients(restaurant.Id);
             var expected = clientList;
             var comparisonResult = new CompareLogic().Compare(expected, actual);
 
@@ -132,10 +132,10 @@ namespace XUnitTests.BusinessTests
                 new Waiter("a", "b", "c", 19),
             };
             restaurant.Waiters.AddRange(waitersList);
-            RestaurantDbContext.Add(restaurant);
-            RestaurantDbContext.SaveChanges();
+            Context.Add(restaurant);
+            Context.SaveChanges();
 
-            var actual = RestaurantServices.ShowAllSpecificRestaurantWaiters(restaurant.Id);
+            var actual = _restaurantServices.ShowAllSpecificRestaurantWaiters(restaurant.Id);
             var expected = waitersList;
             var comparisonResult = new CompareLogic().Compare(expected, actual);
 
@@ -144,7 +144,7 @@ namespace XUnitTests.BusinessTests
 
         public void Dispose()
         {
-            RestaurantDbContext.Database.EnsureDeleted();
+            Context.Database.EnsureDeleted();
         }
     }
 }

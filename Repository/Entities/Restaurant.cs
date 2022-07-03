@@ -15,8 +15,8 @@ namespace Repository.Entities
         public string Email { get; set; }
         [Required]
         public string PhoneNumber { get; set; }
-        public List<Client> Clients { get; set; }
-        public List<Waiter> Waiters { get; set; }
+        public virtual List<Client> Clients { get; set; }
+        public virtual List<Waiter> Waiters { get; set; }
 
         public Restaurant(string name, string address, string email, string phoneNumber)
         {
@@ -38,6 +38,11 @@ namespace Repository.Entities
             PhoneNumber = phoneNumber;
             Clients = clients;
             Waiters = waiters;
+        }
+
+        public Restaurant()
+        {
+
         }
     }
 }

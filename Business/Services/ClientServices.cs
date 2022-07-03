@@ -10,33 +10,33 @@ namespace Business.Services
 {
     public class ClientServices : IClientServices
     {
-        private RestaurantDbContext Rdbc { get; }
+        private RestaurantDbContext _context { get; }
 
-        public ClientServices(RestaurantDbContext rdbc)
+        public ClientServices(RestaurantDbContext context)
         {
-            Rdbc = rdbc;
+            _context = context;
         }
 
         public Result AddNewClientToSpecificRestaurant(Guid restaurantID, string clientFirstName, string clientLastName)
         {
             try
             {
-                var rest = Rdbc.Restaurants.Find(restaurantID);
+                var rest = _context.Restaurants.Find(restaurantID);
                 if (rest == null)
                 {
                     return new Result(false, "Error: Restaurant not found.");
                 }
 
-                var waiters = Rdbc.Waiters.Where(i => i.RestaurantId == restaurantID).ToList();
+                var waiters = _context.Waiters.Where(i => i.RestaurantId == restaurantID).ToList();
                 var newClient = new Client(clientFirstName, clientLastName, restaurantID);
-                Rdbc.Clients.Add(newClient);
+                _context.Clients.Add(newClient);
 
                 foreach (var waiter in waiters)
                 {
                     waiter.Clients.Add(newClient);
                 }
 
-                Rdbc.SaveChanges();
+                _context.SaveChanges();
 
                 return new Result(true, "Success: New client added.");
             }
@@ -50,7 +50,7 @@ namespace Business.Services
         {
             try
             {
-                var client = Rdbc.Clients
+                var client = _context.Clients
                     .Include(i => i.Waiters)
                     .FirstOrDefault(i => i.Id == clientId);
                 if (client == null)
@@ -61,7 +61,7 @@ namespace Business.Services
                 client.Waiters.Clear();
                 client.RestaurantId = moveIntoRestaurantId;
 
-                var restaurant = Rdbc.Restaurants
+                var restaurant = _context.Restaurants
                     .Include(i => i.Waiters)
                     .FirstOrDefault(i => i.Id == moveIntoRestaurantId);
                 if (restaurant == null)
@@ -70,8 +70,8 @@ namespace Business.Services
                 }
 
                 client.Waiters.AddRange(restaurant.Waiters);
-                Rdbc.Clients.Update(client);
-                Rdbc.SaveChanges();
+                _context.Clients.Update(client);
+                _context.SaveChanges();
 
                 return new Result(true, "Success: Client transfered.");
             }
@@ -85,14 +85,35 @@ namespace Business.Services
         {
             try
             {
-                var client = Rdbc.Clients.Find(clientId);
+                var client = _context.Clients.Find(clientId);
                 if (client == null)
                 {
                     return new Result(false, "Error: Client not found.");
                 }
 
-                Rdbc.Clients.Remove(client);
-                Rdbc.SaveChanges();
+                _context.Clients.Remove(client);
+                _context.SaveChanges();
+
+                return new Result(true, "Success: Client deleted.");
+            }
+            catch (Exception e)
+            {
+                return new Result(false, $"Error: {e.Message}");
+            }
+        }
+
+        public Result DeleteTheClientByName(string firstName)
+        {
+            try
+            {
+                var client = _context.Clients.Find(firstName);
+                if (client == null)
+                {
+                    return new Result(false, "Error: Client not found.");
+                }
+
+                _context.Clients.Remove(client);
+                _context.SaveChanges();
 
                 return new Result(true, "Success: Client deleted.");
             }
@@ -104,19 +125,26 @@ namespace Business.Services
 
         public List<Client> ShowAllClientsBySpecificWaiter(Guid waiterId)
         {
-            var waiter = Rdbc.Waiters.Find(waiterId);
-            if (waiter == null)
+            try
             {
-                return null;
+                var waiter = _context.Waiters.Find(waiterId);
+                if (waiter == null)
+                {
+                    return null;
+                }
+                return _context.Clients.Where(i => i.RestaurantId == waiter.RestaurantId).ToList();
             }
-            return Rdbc.Clients.Where(i => i.RestaurantId == waiter.RestaurantId).ToList();
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
         }
 
         public Result AddNewDummyListOfClientsToSpecificRestaurant(Guid restaurantId, int clientsNumber)
         {
             try
             {
-                var restaurant = Rdbc.Restaurants
+                var restaurant = _context.Restaurants
                     .Include(i => i.Waiters)
                     .ThenInclude(i => i.Clients)
                     .Include(i => i.Clients)
@@ -134,10 +162,10 @@ namespace Business.Services
                 }
 
                 clients.ForEach(i => i.Waiters.AddRange(restaurant.Waiters));
-                Rdbc.Clients.AddRange(clients);
+                _context.Clients.AddRange(clients);
                 restaurant.Waiters.ForEach(i => i.Clients.AddRange(clients));
 
-                Rdbc.SaveChanges();
+                _context.SaveChanges();
 
                 return new Result(true, $"Success: Clients added.");
             }

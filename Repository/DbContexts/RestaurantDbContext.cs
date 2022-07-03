@@ -6,11 +6,16 @@ namespace Repository.DbContexts
 {
     public class RestaurantDbContext : DbContext
     {
-        public DbSet<Restaurant> Restaurants { get; set; }
-        public DbSet<Client> Clients { get; set; }
-        public DbSet<Waiter> Waiters { get; set; }
+        public virtual DbSet<Restaurant> Restaurants { get; set; }
+        public virtual DbSet<Client> Clients { get; set; }
+        public virtual DbSet<Waiter> Waiters { get; set; }
 
         public RestaurantDbContext(IDbConfigurations options) : base(options.Options)
+        {
+
+        }
+
+        public RestaurantDbContext()
         {
 
         }
