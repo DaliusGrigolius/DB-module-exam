@@ -23,18 +23,18 @@ namespace XUnitTests.MoqBusinessTests
         }
 
         [Fact]
-        public void AddNewClientToSpecificRestaurant_RestaurantDoesntExist_ReturnsFalse()
+        public void AddNewClientToSpecificRestaurant_CallsMethod_ReturnsResult()
         {
-            //Arrange
-            var restultObj = new Result(false, "Error: Restaurant not found.");
-            _clientServicesMock.Setup(i => i.AddNewClientToSpecificRestaurant(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>())).Returns(restultObj);
+            // Arrange
+            var expected = new Result(It.IsAny<bool>(), It.IsAny<string>());
+            _clientServicesMock.Setup(i => i.AddNewClientToSpecificRestaurant(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>())).Returns(expected);
 
-            //Act
-            var result = Controller.AddNewClientToRestaurant(It.IsAny<Guid>(), "a", "b");
+            // Act
+            var actual = Controller.AddNewClientToRestaurant(It.IsAny<Guid>(), "a", "b");
 
             // Assert
             _clientServicesMock.Verify(s => s.AddNewClientToSpecificRestaurant(It.IsAny<Guid>(), "a", "b"), Times.Once());
-            Assert.Equal(restultObj, result);
+            Assert.Equal(expected, actual);
         }
     }
 }
